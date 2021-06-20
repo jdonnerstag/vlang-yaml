@@ -1,0 +1,34 @@
+# YAML Reference implementation (test tool)
+# https://www.json2yaml.com/
+
+plain:
+  This unquoted scalar
+  spans many lines.
+
+quoted: "So does this
+  quoted scalar with colon space: .\n"
+
+question 1:
+  This is a text, with a 
+  colon and space: but no quotes. It's a key / value, and not a text
+
+question 2:
+  Same with hypen and space - xxx
+  But hypen space are only detected at beginning of line
+
+quoted 2: Same as above
+  but no quotes
+
+Are keys allowed
+  to span multiple lines: answer is no
+
+# VS Code editor is not recognising it. Is that valid YAML or not?
+"Are keys allowed
+  to span multiple lines": answer is no
+
+# Hmm. Also not detected by VS Code. But I'm reasonably sure this is valid YAML.
+"simple": what this simple one 
+
+quoted 3: # comment
+  this is a multi-
+  line text 

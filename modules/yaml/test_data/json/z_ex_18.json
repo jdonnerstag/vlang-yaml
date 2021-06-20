@@ -1,0 +1,9 @@
+{
+  "plain 1": "This unquoted scalar spans many lines. It has three lines.",
+  "plain 2": "This is also multi-line",
+  "plain 3": "The second line is more indented",
+  "plain 4": "The third line is more indented",
+  "plain 5": "This is another example that should work",
+  "plain 6": "The second line\nis more indented",
+  "quoted": "So does this quoted scalar with.\n"
+}

@@ -1,0 +1,78 @@
+# ignore all build binaries
+*
+!*/
+!*.*
+*.exe
+*.o
+*.so
+.*.c
+*.tmp.c
+*.obj
+*.exp
+*.ilk
+*.pdb
+*.dll
+*.lib
+*.bak
+a.out
+.noprefix.vrepl_temp
+
+# ignore temp directories
+/temp
+/tmp
+
+# unignore special files without extension
+!.github/PULL_REQUEST_TEMPLATE
+!.editorconfig
+!.gitattributes
+!.gitignore
+!BSDmakefile
+!Dockerfile
+!Dockerfile.alpine
+!Dockerfile.cross
+!LICENSE
+!Makefile
+
+# ignore editor files
+.idea
+.project
+.classpath
+.c9
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/
+*.code-workspace
+*~
+*.swp
+*.swo
+*.swn
+.env
+
+# ignore debugger files
+cachegrind.out.*
+.gdb_history
+*.dSYM
+*.def
+
+# ignore system files
+.DS_Store
+._*
+thumbs.db
+/.symlink
+/.bin
+
+_docs
+
+# ignore vs databases
+*.suo
+*.VC.db
+*.rsp
+
+# ignore cmd/tools/.disable_autorecompilation, which some package managers use.
+cmd/tools/.disable_autorecompilation
+
+test.bin
+
+# ignore codespace env
+.venv/
