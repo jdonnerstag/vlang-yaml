@@ -5,4 +5,5 @@ Module {
 	license: 'MIT'
 	repo_url: 'https://github.com/jdonnerstag/vlang-yaml'
 	dependencies: []
+	tags: ['YAML', 'JSON']
 }
