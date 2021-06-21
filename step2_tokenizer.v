@@ -44,7 +44,8 @@ fn fix_float_str(v f64) string {
 	return x
 }
 
-// format A printable string representation of the value
+// format A printable string representation of the value. Especially strings will be
+// quoted, e.g. "..."
 fn (typ YamlTokenValueType) format() string {
 	return match typ {
 		string { "\"$typ\"" }
@@ -73,14 +74,17 @@ struct ParentNode {
 // transform it into respective YamlToken tokens.
 struct YamlTokenizer {
 pub:
-	fpath string		// file name
-	text string			// The full yaml document
-	newline string		// The auto-detected newline
+	fpath string			// file name
+	text string				// The full yaml document
+	newline string			// The auto-detected newline
 	encoding ts.Encodings	// Currently only utf-8 is supported
+	replace_tags bool		// If true, then tags are replaced with the respective sequence of tokens (tag definition)
 	debug int
 
 pub mut:
-	tokens []YamlToken	// The list of YAML tokens
+	tokens []YamlToken		// The list of YAML tokens
+
+	tags map[string]int		// tag name => token index
 }
 
 // token_followed_by Return true if the token following the one at position 'i',
@@ -155,34 +159,64 @@ fn new_str_token(typ YamlTokenKind, val string) YamlToken {
 	return YamlToken{ typ: typ, val: remove_quotes(val) }
 }
 
+struct NewTokenizerParams {
+	debug int	// 4 and 8 are good number to print increasingly more debug messages
+	replace_tags bool = true
+}
+
 // yaml_tokenizer Iterate over the stream of text tokens provided by TextScanner and 
 // transform it into respective YamlToken tokens.
-fn yaml_tokenizer(fpath string, debug int) ?YamlTokenizer {
-	scanner := yaml_scanner(fpath, debug)?
+// Please note that we have 2 approaches at different levels to replace tags. If you 
+// enable it in the tokenizer, then the tag reference will be replaced with a copy of 
+// all tokens associated with the tag reference.
+// The 2nd approach is implmented in the yaml reader. 
+fn yaml_tokenizer(fpath string, args NewTokenizerParams) ?YamlTokenizer {
+	scanner := yaml_scanner(fpath, args.debug)?
 
-	if scanner.tokens.len == 0 {
-		return error("No YAML tokens found")
-	}
+	if scanner.tokens.len == 0 { return error("No YAML tokens found") }
 	
-	if debug > 2 { eprintln("------------- yaml_tokenizer") }
-
-	tokens := text_to_yaml_tokens(scanner, debug)?
+	if args.debug > 2 { eprintln("------------- yaml_tokenizer") }
 
 	mut tokenizer := YamlTokenizer{
 		fpath: fpath,
 		text: scanner.ts.text,
 		newline: scanner.ts.newline,
 		encoding: scanner.ts.encoding,
-		tokens: tokens,
-		debug: debug
+		replace_tags: args.replace_tags,
+		debug: args.debug
 	}
+
+	tokenizer.tokens = tokenizer.text_to_yaml_tokens(scanner, args.debug)?
 
 	return tokenizer
 }
 
+fn (tokenizer YamlTokenizer) add_tag_tokens(name string, mut tokens []YamlToken, start int) ? {
+	if tokens[start].typ == YamlTokenKind.value { 
+		tok := tokens[start]
+		tokens << tok
+		return
+	} 
+
+	stop := tokens.len
+	mut count := 0
+	for i in start .. stop {
+		tok := tokens[i]
+		// eprintln("start: $start, stop: $stop, i: $i, count: $count, tok: $tok.typ, $tok.val")
+		tokens << tok
+		if tok.typ in [YamlTokenKind.start_list, YamlTokenKind.start_object] {
+			count ++
+		} else if tok.typ == YamlTokenKind.close { 
+			count --
+			if count <= 0 { return }
+		}
+	}
+	return error("Something went wrong with inserting the tag tokens for '$name'")
+}
+
 // text_to_yaml_tokens The main tokenizer function: convert string like tokens
 // into proper YAML tokens
-fn text_to_yaml_tokens(scanner &Scanner, debug int) ?[]YamlToken {
+fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int) ?[]YamlToken {
 
 	mut tokens := []YamlToken{}
 	mut parents := []ParentNode{}	// This is internal only, during transformation
@@ -244,9 +278,21 @@ fn text_to_yaml_tokens(scanner &Scanner, debug int) ?[]YamlToken {
 		} else if t.typ == TokenKind.question_mark {
 			return error("complex mapping key: NOT SUPPORTED")
 		} else if t.typ == TokenKind.tag_ref {
-			tokens << new_token(YamlTokenKind.tag_ref, t.val)
+			name := t.val
+			if tokenizer.replace_tags == true {
+				if !(name in tokenizer.tags) {
+					return error("Did not find definition for tag: '$name'")
+				}
+				tokenizer.add_tag_tokens(name, mut tokens, tokenizer.tags[name])?
+			} else {
+				tokens << new_token(YamlTokenKind.tag_ref, name)
+			}
 		} else if t.typ == TokenKind.tag_def {
-			tokens << new_token(YamlTokenKind.tag_def, t.val)
+			if tokenizer.replace_tags == true {
+				tokenizer.tags[t.val] = tokens.len
+			} else {
+				tokens << new_token(YamlTokenKind.tag_def, t.val)
+			}
 		} else if t.typ == TokenKind.end_of_document {
 			for parents.len > 0 {
 				parents.pop()

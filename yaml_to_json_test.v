@@ -17,7 +17,7 @@ fn test_compare_with_json_files() ? {
 		yf := "$test_data_dir/$f".replace(".json", ".yaml")
 		if os.is_file(yf) == false { continue }
 		eprintln("read yaml: $yf")
-		mut json := yaml_to_json(yf, debug)?
+		mut json := yaml_to_json(yf, replace_tags: true, debug: debug)?
 
 		file_content := os.read_file("$test_data_dir/json/$f")?
 
@@ -34,7 +34,7 @@ fn test_compare_with_json_files() ? {
 }
 
 fn read_yson_file(fname string, debug int) ?string {
-	mut json_data := yaml_to_json("$test_data_dir/${fname}.yaml", debug)?
+	mut json_data := yaml_to_json("$test_data_dir/${fname}.yaml", replace_tags: true, debug: debug)?
 	if json_data.starts_with("[") {
 		return "{ \"ar\": $json_data }"
 	}

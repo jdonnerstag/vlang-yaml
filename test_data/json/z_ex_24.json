@@ -1,5 +1,5 @@
 [
   {"center": {"x": 73, "y": 129}, "radius": 7},
-  {"start": "*ORIGIN", "finish": {"x": 89, "y": 102}},
-  {"start": "*ORIGIN", "color": "0xFFEEBB", "text": "Pretty vector drawing."}
+  {"start": {"x": 73, "y": 129}, "finish": {"x": 89, "y": 102}},
+  {"start": {"x": 73, "y": 129}, "color": "0xFFEEBB", "text": "Pretty vector drawing."}
 ]

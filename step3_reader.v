@@ -37,13 +37,25 @@ pub fn (val YamlValues) get(idx int) YamlValue {
 	return val.documents[idx]
 }
 
+pub enum ReplaceTagsEnum {
+	do_not
+	in_tokenizer
+	in_reader
+}
+
+struct NewYamlReaderParams {
+	debug int	// 4 and 8 are good number to print increasingly more debug messages
+	replace_tags ReplaceTagsEnum = ReplaceTagsEnum.in_reader
+}
+
 // yaml_reader This is the main function to read a YAML file and convert 
 // the YAML data into 'objects'. In V structs must be defined at compile 
 // time, and V [attributes] are not user extensible. V's json implementation
 // makes use of attributes. Without a better option at hand, the implementation
 // dynamically creates a tree structure leveraging a sumtype.
-pub fn yaml_reader(fpath string, debug int) ?YamlValues {
-	tokenizer := yaml_tokenizer(fpath, debug)?
+pub fn yaml_reader(fpath string, args NewYamlReaderParams) ?YamlValues {
+	replace_tags_in_tokenizer := args.replace_tags == ReplaceTagsEnum.in_tokenizer
+	tokenizer := yaml_tokenizer(fpath, replace_tags: replace_tags_in_tokenizer, debug: args.debug)?
 
 	mut values := YamlValues{
 		fpath: tokenizer.fpath,
@@ -52,7 +64,7 @@ pub fn yaml_reader(fpath string, debug int) ?YamlValues {
 		encoding: tokenizer.encoding
 	}
 
-	values.read_root(tokenizer.tokens, debug)?
+	values.read_root(tokenizer.tokens, args.debug)?
 
 	return values
 }

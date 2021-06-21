@@ -77,18 +77,31 @@ fn test_to_value_type() ? {
 	assert to_value_type("1") == YamlTokenValueType(i64(1))
 }
 
+fn test_z_ex_10_resolve_tags() ? {
+	fpath := "$test_data_dir/z_ex_10.yaml"
+	tokenizer := yaml_tokenizer(fpath, replace_tags: true, debug: debug)?
+	assert tokenizer.tags.len == 1
+	assert tokenizer.tokens.len == 14
+	assert tokenizer.tokens[5] == tokenizer.tokens[9]	// "SS" tag
+	// for i, tok in tokenizer.tokens { eprintln("$i: $tok") }
+}
 
-fn test_z_ex_01() ? {
-	fpath := "$test_data_dir/z_ex_01.yaml"
-	docs := yaml_reader(fpath, debug)?
-	assert docs.documents.len == 1
-	x := docs.get(0)
-	assert x is YamlListValue
-	if x is YamlListValue {
-		assert x.ar.len == 3
-		//eprintln(x.ar)
-		assert x.ar[0] == YamlValue("Mark McGwire")
-		assert x.ar[1] == YamlValue("Sammy Sosa")
-		assert x.ar[2] == YamlValue("Ken Griffey")
-	}
+fn test_z_ex_24_resolve_tags() ? {
+	fpath := "$test_data_dir/z_ex_24.yaml"
+	tokenizer := yaml_tokenizer(fpath, replace_tags: true, debug: debug)?
+	assert tokenizer.tags.len == 1
+	assert tokenizer.tokens.len == 44
+	// for i, tok in tokenizer.tokens { eprintln("$i: $tok.typ, $tok.val") }
+	assert tokenizer.tokens[4] == tokenizer.tokens[15]	// 1. "ORIGIN" tag
+	assert tokenizer.tokens[4] == tokenizer.tokens[22]	// 2. "ORIGIN" tag
+}
+
+fn test_z_ex_27_resolve_tags() ? {
+	fpath := "$test_data_dir/z_ex_27.yaml"
+	tokenizer := yaml_tokenizer(fpath, replace_tags: true, debug: debug)?
+	assert tokenizer.tags.len == 1
+	assert tokenizer.tokens.len == 73
+	//for i, tok in tokenizer.tokens { eprintln("$i: $tok.typ, $tok.val") }
+	assert tokenizer.tokens[8] == tokenizer.tokens[26]	// "id001" tag
+	assert tokenizer.tokens[15] == tokenizer.tokens[33]	
 }

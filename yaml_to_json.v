@@ -9,12 +9,12 @@ pub mut:
 }
 
 // yaml_to_json Read the yaml file and convert it into a JSON string
-pub fn yaml_to_json(fpath string, debug int) ?string {
-	tokenizer := yaml_tokenizer(fpath, debug)?
+pub fn yaml_to_json(fpath string, args NewTokenizerParams) ?string {
+	tokenizer := yaml_tokenizer(fpath, args)?
 
 	mut json := YamlJson { tokens: tokenizer.tokens }
 
-	return json.yaml_to_json_root(debug)
+	return json.yaml_to_json_root(args.debug)
 }
 
 // yaml_to_json_root Main entry point for converting the YAML tokens

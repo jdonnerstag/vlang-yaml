@@ -11,7 +11,7 @@ const debug = 0
 
 fn test_z_ex_01() ? {
 	fpath := "$test_data_dir/z_ex_01.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 	
 	x := docs.get(0)
@@ -28,7 +28,7 @@ fn test_z_ex_01() ? {
 
 fn test_z_ex_02() ? {
 	fpath := "$test_data_dir/z_ex_02.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x := docs.get(0)
 	assert x.get("hr")?.string()? == "65"
@@ -54,7 +54,7 @@ fn test_z_ex_02() ? {
 
 fn test_z_ex_03() ? {
 	fpath := "$test_data_dir/z_ex_03.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x := docs.get(0)
 	assert x.get("american", 0)?.string()? == "Boston Red Sox"
@@ -68,7 +68,7 @@ fn test_z_ex_03() ? {
 
 fn test_z_ex_04() ? {
 	fpath := "$test_data_dir/z_ex_04.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x1 := docs.get(0)
 	assert x1.get(0, "name")?.string()? == "Mark McGwire"
@@ -82,7 +82,7 @@ fn test_z_ex_04() ? {
 
 fn test_z_ex_05() ? {
 	fpath := "$test_data_dir/z_ex_05.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x1 := docs.get(0)
 
@@ -101,7 +101,7 @@ fn test_z_ex_05() ? {
 
 fn test_z_ex_06() ? {
 	fpath := "$test_data_dir/z_ex_06.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x1 := docs.get(0)
 
@@ -114,7 +114,7 @@ fn test_z_ex_06() ? {
 
 fn test_z_ex_07() ? {
 	fpath := "$test_data_dir/z_ex_07.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 2
 
 	x1 := docs.get(0)
@@ -129,7 +129,7 @@ fn test_z_ex_07() ? {
 
 fn test_z_ex_08() ? {
 	fpath := "$test_data_dir/z_ex_08.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 2
 
 	x1 := docs.get(0)
@@ -145,7 +145,7 @@ fn test_z_ex_08() ? {
 
 fn test_z_ex_09() ? {
 	fpath := "$test_data_dir/z_ex_09.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -158,11 +158,8 @@ fn test_z_ex_09() ? {
 
 fn test_z_ex_10() ? {
 	fpath := "$test_data_dir/z_ex_10.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
-
-	assert "SS" in docs.tags 
-	assert docs.tags["SS"].string()? == "Sammy Sosa"
 
 	x1 := docs.get(0)
 	assert x1.get("hr", 0)?.string()? == "Mark McGwire"
@@ -176,12 +173,12 @@ fn test_z_ex_11() ? {
 	fpath := "$test_data_dir/z_ex_11.yaml"
 
 	// Complex mapping keys are not supported
-	if _ := yaml_reader(fpath, 0) { assert false }
+	if _ := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug) { assert false }
 }
 
 fn test_z_ex_12() ? {
 	fpath := "$test_data_dir/z_ex_12.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 
 	x1 := docs.get(0)
@@ -197,7 +194,7 @@ fn test_z_ex_12() ? {
 
 fn test_z_ex_13() ? {
 	fpath := "$test_data_dir/z_ex_13.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 
 	x1 := docs.get(0)
@@ -206,7 +203,7 @@ fn test_z_ex_13() ? {
 
 fn test_z_ex_14() ? {
 	fpath := "$test_data_dir/z_ex_14.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 
 	x1 := docs.get(0)
@@ -215,7 +212,7 @@ fn test_z_ex_14() ? {
 
 fn test_z_ex_15() ? {
 	fpath := "$test_data_dir/z_ex_15.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 
 	x1 := docs.get(0)
@@ -224,7 +221,7 @@ fn test_z_ex_15() ? {
 
 fn test_z_ex_16() ? {
 	fpath := "$test_data_dir/z_ex_16.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -235,7 +232,7 @@ fn test_z_ex_16() ? {
 
 fn test_z_ex_17() ? {
 	fpath := "$test_data_dir/z_ex_17.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -249,7 +246,7 @@ fn test_z_ex_17() ? {
 
 fn test_z_ex_18() ? {
 	fpath := "$test_data_dir/z_ex_18.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -265,7 +262,7 @@ fn test_z_ex_18() ? {
 
 fn test_z_ex_19() ? {
 	fpath := "$test_data_dir/z_ex_19.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -277,7 +274,7 @@ fn test_z_ex_19() ? {
 
 fn test_z_ex_20() ? {
 	fpath := "$test_data_dir/z_ex_20.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -290,7 +287,7 @@ fn test_z_ex_20() ? {
 
 fn test_z_ex_21() ? {
 	fpath := "$test_data_dir/z_ex_21.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -302,7 +299,7 @@ fn test_z_ex_21() ? {
 
 fn test_z_ex_22() ? {
 	fpath := "$test_data_dir/z_ex_22.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -314,7 +311,7 @@ fn test_z_ex_22() ? {
 
 fn test_z_ex_23() ? {
 	fpath := "$test_data_dir/z_ex_23.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -325,12 +322,8 @@ fn test_z_ex_23() ? {
 
 fn test_z_ex_24() ? {
 	fpath := "$test_data_dir/z_ex_24.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
-
-	assert "ORIGIN" in docs.tags 
-	assert docs.tags["ORIGIN"].get("x")?.int()? == 73
-	assert docs.tags["ORIGIN"].get("y")?.int()? == 129
 
 	x1 := docs.get(0)
 	assert x1.get(0, "center", "x")?.int()? == 73
@@ -346,14 +339,13 @@ fn test_z_ex_24() ? {
 	assert x1.get(2, "start", "y")?.string()? == "129"
 	assert x1.get(2, "color")?.string()? == "0xFFEEBB"
 	assert x1.get(2, "text")?.string()? == "Pretty vector drawing."
-
 }
 
 fn test_z_ex_25() ? {
 	fpath := "$test_data_dir/z_ex_25.yaml"
-	if _ := yaml_reader(fpath, debug) { assert false }	// '?' is not yet support
+	if _ := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug) { assert false }	// '?' is not yet support
 	/*
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1 
 	x := rtn[0]
 	assert x is YamlMapValue
@@ -368,7 +360,7 @@ fn test_z_ex_25() ? {
 
 fn test_z_ex_26() ? {
 	fpath := "$test_data_dir/z_ex_26.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
@@ -379,27 +371,16 @@ fn test_z_ex_26() ? {
 
 fn test_z_ex_27() ? {
 	fpath := "$test_data_dir/z_ex_27.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
-
-	assert "id001" in docs.tags 
-	assert docs.tags["id001"].get("given")?.string()? == "Chris"
-	assert docs.tags["id001"].get("family")?.string()? == "Dumars"
 
 	x1 := docs.get(0)
 	assert x1.get("invoice")?.string()? == "34843"
-
-	assert docs.tags.len == 1
-	assert docs.tags["id001"] is YamlMapValue
-	assert docs.tags["id001"].get("given")?.string()? == "Chris"
-	assert docs.tags["id001"].get("address", "city")?.string()? == "Royal Oak"
-
-	assert docs.tags["id001"].get("given")?.string()? == x1.get("bill-to", "given")?.string()?
 }
 
 fn test_nested_objects() ? {
 	fpath := "$test_data_dir/nested_objects.yaml"
-	docs := yaml_reader(fpath, debug)?
+	docs := yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
