@@ -22,13 +22,13 @@ users to define their own [attributes] right now)
 
 ```
 TextScanner: split text into string tokens (generic)
-	-> Scanner: map into basic yaml-like tokens
-		-> Tokenizer: derive proper yaml tokens (events)
+    -> Scanner: map into basic yaml-like tokens
+        -> Tokenizer: derive proper yaml tokens (events)
             -> JSON output: convert into JSON string
-				-> print
-				-> json.decode() V built-in: load into V struct's
-			-> Reader: load into dynamic YamlValue structure
-				-> Accessor: path-like access to tree-like YamlValue structure
+                -> print
+                -> json.decode() V built-in: load into V struct's
+            -> Reader: load into dynamic YamlValue structure
+                -> Accessor: path-like access to tree-like YamlValue structure
 ```
 
 **TextScanner**: A generic module, not YAML specific, with re-useable functions to detect newline, handle line count, skip whitespace, move to end-of-line, set a marker at a certain position and retrieve the text between the marker and the current postion, read quoted strings, etc.
