@@ -2,7 +2,7 @@ module yaml
 
 
 // YamlJson This is mostly an internal struct to namespace some functions.
-struct YamlJson {
+pub struct YamlJson {
 	tokens []YamlToken
 pub mut:
 	json string

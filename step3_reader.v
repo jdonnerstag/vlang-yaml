@@ -7,19 +7,19 @@ import yaml.text_scanner as ts
 // array in the if-clause, e.g. if x is []YamlValue { assert x.len == 3 }
 // does not work!!! Putting them into a struct is a workaround.
 // type YamlValue = map[string]YamlValue | []YamlValue | string
-type YamlValue = YamlMapValue | YamlListValue | string | i64 | f64 | bool
+pub type YamlValue = YamlMapValue | YamlListValue | string | i64 | f64 | bool
 
-struct YamlListValue {
+pub struct YamlListValue {
 pub mut:
 	ar []YamlValue
 }
 
-struct YamlMapValue {
+pub struct YamlMapValue {
 pub mut:
 	obj map[string]YamlValue
 }
 
-struct YamlValues {
+pub struct YamlValues {
 pub:
 	fpath string		// file name
 	text string			// The full yaml document
@@ -43,7 +43,7 @@ pub enum ReplaceTagsEnum {
 	in_reader
 }
 
-struct NewYamlReaderParams {
+pub struct NewYamlReaderParams {
 	debug int	// 4 and 8 are good number to print increasingly more debug messages
 	replace_tags ReplaceTagsEnum = ReplaceTagsEnum.in_reader
 }

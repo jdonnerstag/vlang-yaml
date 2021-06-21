@@ -8,7 +8,7 @@ import yaml.text_scanner as ts
 // YamlTokenKind The TextScanner tokens are text centric and quite basic. The 
 // tokenizer reads the text tokens and derives YAML tokens. Each YAML token
 // will be of a specific kind.
-enum YamlTokenKind {
+pub enum YamlTokenKind {
 	start_list
 	start_object
 	close
@@ -25,9 +25,9 @@ enum YamlTokenKind {
 // YamlTokenValueType The value of YamlToken can be any of these types.
 // The type is auto-detected. Quoted strings always remain strings (without quotes).
 // true / false, yes / no are valid boolean values. 0 / 1 are integers. 
-type YamlTokenValueType = string | i64 | f64 | bool		// TODO implement bool
+pub type YamlTokenValueType = string | i64 | f64 | bool		// TODO implement bool
 
-fn (typ YamlTokenValueType) str() string {
+pub fn (typ YamlTokenValueType) str() string {
 	return match typ {
 		string { typ.str() }
 		i64 { typ.str() }
@@ -46,7 +46,7 @@ fn fix_float_str(v f64) string {
 
 // format A printable string representation of the value. Especially strings will be
 // quoted, e.g. "..."
-fn (typ YamlTokenValueType) format() string {
+pub fn (typ YamlTokenValueType) format() string {
 	return match typ {
 		string { "\"$typ\"" }
 		i64 { typ.str() }
@@ -57,7 +57,7 @@ fn (typ YamlTokenValueType) format() string {
 
 // YamlToken A YAML token is quite simple. It consists of a token-kind and
 // the associated text, if any.
-struct YamlToken {
+pub struct YamlToken {
 	typ YamlTokenKind
 	val YamlTokenValueType
 }
@@ -159,7 +159,8 @@ fn new_str_token(typ YamlTokenKind, val string) YamlToken {
 	return YamlToken{ typ: typ, val: remove_quotes(val) }
 }
 
-struct NewTokenizerParams {
+pub struct NewTokenizerParams {
+pub:
 	debug int	// 4 and 8 are good number to print increasingly more debug messages
 	replace_tags bool = true
 }
@@ -170,7 +171,7 @@ struct NewTokenizerParams {
 // enable it in the tokenizer, then the tag reference will be replaced with a copy of 
 // all tokens associated with the tag reference.
 // The 2nd approach is implmented in the yaml reader. 
-fn yaml_tokenizer(fpath string, args NewTokenizerParams) ?YamlTokenizer {
+pub fn yaml_tokenizer(fpath string, args NewTokenizerParams) ?YamlTokenizer {
 	scanner := yaml_scanner(fpath, args.debug)?
 
 	if scanner.tokens.len == 0 { return error("No YAML tokens found") }

@@ -15,7 +15,7 @@ pub mut:
 	block_levels []byte	// Open block levels '{' or '['
 }
 
-enum TokenKind {
+pub enum TokenKind {
 	lcbr			// `{`
 	rcbr			// `}`
 	labr			// `[`
@@ -36,7 +36,7 @@ enum TokenKind {
 	tag_directive	// %TAG
 }
 
-struct Token {
+pub struct Token {
 	typ TokenKind		// Token type
 	column int			// Token indent level
 	val string			// Token string value
@@ -64,7 +64,7 @@ pub fn (s Scanner) scan() ScannerIter {
 //   multi-line text
 // - Indentation plays a major role in YAML. Every token provide the indentation
 //   level (== column)
-fn yaml_scanner(fpath string, debug int) ?Scanner {
+pub fn yaml_scanner(fpath string, debug int) ?Scanner {
 	if debug > 2 { eprintln("YAML file: $fpath") }
 
 	content := os.read_file(fpath)?
@@ -79,13 +79,13 @@ fn yaml_scanner(fpath string, debug int) ?Scanner {
 	return scanner
 }
 
-fn new_scanner(data string, debug int) ?Scanner {
+pub fn new_scanner(data string, debug int) ?Scanner {
 	text_scanner := ts.new_scanner(data)?
 	return Scanner{ ts: text_scanner, debug: debug }
 }
 
 [inline]
-fn (s Scanner) len() int {
+pub fn (s Scanner) len() int {
 	return s.ts.len()
 }
 
