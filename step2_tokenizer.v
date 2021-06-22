@@ -48,7 +48,10 @@ fn fix_float_str(v f64) string {
 // quoted, e.g. "..."
 pub fn (typ YamlTokenValueType) format() string {
 	return match typ {
-		string { "\"$typ\"" }
+		string { 
+			x := typ.replace('"', '\\"')
+			"\"$x\"" 
+		}
 		i64 { typ.str() }
 		f64 { fix_float_str(typ) }
 		bool { typ.str() }
@@ -104,9 +107,13 @@ fn is_quoted(str string, ch byte) bool {
 }
 
 // remove_quotes Remove any optional quotes
-fn remove_quotes(str string) string {
-	if is_quoted(str, `"`) || is_quoted(str, `'`) {
-		return str[1 .. str.len - 1]
+fn remove_quotes(str string) ?string {
+	if is_quoted(str, `"`) {
+		val := str[1 .. str.len - 1]
+		return interpolate_double_quoted_string(val)
+	} else if is_quoted(str, `'`) {
+		val := str[1 .. str.len - 1]
+		return interpolate_single_quoted_string(val)
 	}
 	return str
 }
@@ -125,7 +132,10 @@ fn cmp_lowercase(str1 string, str2 string) bool {
 
 // to_value_type Analyse the token string and convert it to the respective type.
 // Remove any optionally existing quotes for string types
-fn to_value_type(str string) YamlTokenValueType {
+fn to_value_type(val string) ?YamlTokenValueType {
+	// Convert 0x.., 0o.. and 0b.. to decimal integers
+	str := interpolate_plain_value(val)
+
 	if ystrconv.is_int(str) {
 		return str.i64()
 	} else if ystrconv.is_float(str) {
@@ -134,15 +144,15 @@ fn to_value_type(str string) YamlTokenValueType {
 		return true
 	} else if cmp_lowercase(str, "false") || cmp_lowercase(str, "no") {
 		return false
-	}
-	return remove_quotes(str)
+	} 
+	return YamlTokenValueType(remove_quotes(str)?)
 }
 
 // new_token Create a new token. Dynamically determine the value type. 
 // See to_value_type(). 
 [inline]
-fn new_token(typ YamlTokenKind, val string) YamlToken {
-	return YamlToken{ typ: typ, val: to_value_type(val) }
+fn new_token(typ YamlTokenKind, val string) ?YamlToken {
+	return YamlToken{ typ: typ, val: to_value_type(val)? }
 }
 
 // new_empty_token Many token only have a token type, but the token value
@@ -155,8 +165,8 @@ fn new_empty_token(typ YamlTokenKind) YamlToken {
 // new_str_token Do not auto-detect the value type, consider the value
 // to be a string. Remove any optional quotes.
 [inline]
-fn new_str_token(typ YamlTokenKind, val string) YamlToken {
-	return YamlToken{ typ: typ, val: remove_quotes(val) }
+fn new_str_token(typ YamlTokenKind, val string) ?YamlToken {
+	return YamlToken{ typ: typ, val: remove_quotes(val)? }
 }
 
 pub struct NewTokenizerParams {
@@ -227,9 +237,9 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 		if parents.len > 0 && parents.last().block == true {
 			if t.typ == TokenKind.xstr {
 				if scanner.token_followed_by(i, TokenKind.colon) {
-					tokens << new_token(YamlTokenKind.key, t.val)
+					tokens << new_token(YamlTokenKind.key, t.val)?
 				} else {
-					tokens << new_token(YamlTokenKind.value, t.val)
+					tokens << new_token(YamlTokenKind.value, t.val)?
 				}
 			} else if t.typ == TokenKind.rabr {
 				parents.pop()
@@ -259,17 +269,17 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 		}
 
 		if t.typ == TokenKind.xstr && scanner.token_followed_by(i, TokenKind.newline) {
-			tokens << new_token(YamlTokenKind.value, t.val)
+			tokens << new_token(YamlTokenKind.value, t.val)?
 		} else if t.typ == TokenKind.xstr && scanner.token_followed_by(i, TokenKind.colon) {
 			// TODO There is a bug in V. mut ar []int in combination with ar.last() generates wrong C code
 			// if tokens.len > 0 && tokens.last().typ == YamlTokenKind.key {
 			if tokens.len > 0 && tokens[tokens.len - 1].typ == YamlTokenKind.key {
 				if parents.last().indent == t.column {
 					// Key with null value
-					tokens << new_str_token(YamlTokenKind.value, "")
+					tokens << new_str_token(YamlTokenKind.value, "")?
 				}
 			}
-			tokens << YamlToken{ typ: YamlTokenKind.key, val: to_value_type(t.val) }
+			tokens << YamlToken{ typ: YamlTokenKind.key, val: to_value_type(t.val)? }
 		} else if t.typ == TokenKind.labr {
 			parents << ParentNode{ typ: "list", indent: t.column, block: true }
 			tokens << new_empty_token(YamlTokenKind.start_list)
@@ -286,13 +296,13 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 				}
 				tokenizer.add_tag_tokens(name, mut tokens, tokenizer.tags[name])?
 			} else {
-				tokens << new_token(YamlTokenKind.tag_ref, name)
+				tokens << new_token(YamlTokenKind.tag_ref, name)?
 			}
 		} else if t.typ == TokenKind.tag_def {
 			if tokenizer.replace_tags == true {
 				tokenizer.tags[t.val] = tokens.len
 			} else {
-				tokens << new_token(YamlTokenKind.tag_def, t.val)
+				tokens << new_token(YamlTokenKind.tag_def, t.val)?
 			}
 		} else if t.typ == TokenKind.end_of_document {
 			for parents.len > 0 {

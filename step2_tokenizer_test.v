@@ -26,55 +26,55 @@ fn test_is_quoted() ? {
 }
 
 fn test_remove_quotes() ? {
-	assert remove_quotes("") == ""
-	assert remove_quotes("a") == "a"	
-	assert remove_quotes("aa") == "aa"	
-	assert remove_quotes("aaa") == "aaa"	
-	assert remove_quotes("a'b'") == "a'b'"	
-	assert remove_quotes("'a'b") == "'a'b"	
-	assert remove_quotes("'ab'") == "ab"	
-	assert remove_quotes("'a'") == "a"
-	assert remove_quotes("''") == ""	
-	assert remove_quotes("\"ab\"") == "ab"	
-	assert remove_quotes("\"a\"") == "a"	
-	assert remove_quotes("\"\"") == ""	
+	assert remove_quotes("")? == ""
+	assert remove_quotes("a")? == "a"	
+	assert remove_quotes("aa")? == "aa"	
+	assert remove_quotes("aaa")? == "aaa"	
+	assert remove_quotes("a'b'")? == "a'b'"	
+	assert remove_quotes("'a'b")? == "'a'b"	
+	assert remove_quotes("'ab'")? == "ab"	
+	assert remove_quotes("'a'")? == "a"
+	assert remove_quotes("''")? == ""	
+	assert remove_quotes("\"ab\"")? == "ab"	
+	assert remove_quotes("\"a\"")? == "a"	
+	assert remove_quotes("\"\"")? == ""	
 }
 
 fn test_to_value_type() ? {
-	assert to_value_type("") == YamlTokenValueType("")
-	assert to_value_type("a") == YamlTokenValueType("a")	
-	assert to_value_type("aa") == YamlTokenValueType("aa")
-	assert to_value_type("aaa") == YamlTokenValueType("aaa")	
-	assert to_value_type("a'b'") == YamlTokenValueType("a'b'")
-	assert to_value_type("'a'b") == YamlTokenValueType("'a'b")	
-	assert to_value_type("'ab'") == YamlTokenValueType("ab")	
-	assert to_value_type("'a'") == YamlTokenValueType("a")
-	assert to_value_type("''") == YamlTokenValueType("")
-	assert to_value_type("\"ab\"") == YamlTokenValueType("ab")
-	assert to_value_type("\"a\"") == YamlTokenValueType("a")
-	assert to_value_type("\"\"") == YamlTokenValueType("")
+	assert to_value_type("")? == YamlTokenValueType("")
+	assert to_value_type("a")? == YamlTokenValueType("a")	
+	assert to_value_type("aa")? == YamlTokenValueType("aa")
+	assert to_value_type("aaa")? == YamlTokenValueType("aaa")	
+	assert to_value_type("a'b'")? == YamlTokenValueType("a'b'")
+	assert to_value_type("'a'b")? == YamlTokenValueType("'a'b")	
+	assert to_value_type("'ab'")? == YamlTokenValueType("ab")	
+	assert to_value_type("'a'")? == YamlTokenValueType("a")
+	assert to_value_type("''")? == YamlTokenValueType("")
+	assert to_value_type("\"ab\"")? == YamlTokenValueType("ab")
+	assert to_value_type("\"a\"")? == YamlTokenValueType("a")
+	assert to_value_type("\"\"")? == YamlTokenValueType("")
 
-	assert to_value_type("1") == YamlTokenValueType(i64(1))
-	assert to_value_type("+1") == YamlTokenValueType(i64(1))
-	assert to_value_type("-1") == YamlTokenValueType(i64(-1))
-	assert to_value_type("100") == YamlTokenValueType(i64(100))
+	assert to_value_type("1")? == YamlTokenValueType(i64(1))
+	assert to_value_type("+1")? == YamlTokenValueType(i64(1))
+	assert to_value_type("-1")? == YamlTokenValueType(i64(-1))
+	assert to_value_type("100")? == YamlTokenValueType(i64(100))
 
-	assert to_value_type("1.") == YamlTokenValueType(f64(1))
-	assert to_value_type("1.1") == YamlTokenValueType(f64(1.1))
-	assert to_value_type(".1") == YamlTokenValueType(f64(0.1))
-	assert to_value_type("1e2") == YamlTokenValueType(f64(100))
-	assert to_value_type("10e+2") == YamlTokenValueType(f64(1000))
-	assert to_value_type("10e-2") == YamlTokenValueType(f64(.1))
+	assert to_value_type("1.")? == YamlTokenValueType(f64(1))
+	assert to_value_type("1.1")? == YamlTokenValueType(f64(1.1))
+	assert to_value_type(".1")? == YamlTokenValueType(f64(0.1))
+	assert to_value_type("1e2")? == YamlTokenValueType(f64(100))
+	assert to_value_type("10e+2")? == YamlTokenValueType(f64(1000))
+	assert to_value_type("10e-2")? == YamlTokenValueType(f64(.1))
 
-	assert to_value_type("450.00") == YamlTokenValueType(f64(450))
-	assert to_value_type("2392.00") == YamlTokenValueType(f64(2392))
+	assert to_value_type("450.00")? == YamlTokenValueType(f64(450))
+	assert to_value_type("2392.00")? == YamlTokenValueType(f64(2392))
 
-	assert to_value_type("true") == YamlTokenValueType(true)
-	assert to_value_type("false") == YamlTokenValueType(false)
-	assert to_value_type("yes") == YamlTokenValueType(true)
-	assert to_value_type("no") == YamlTokenValueType(false)
-	assert to_value_type("0") == YamlTokenValueType(i64(0))
-	assert to_value_type("1") == YamlTokenValueType(i64(1))
+	assert to_value_type("true")? == YamlTokenValueType(true)
+	assert to_value_type("false")? == YamlTokenValueType(false)
+	assert to_value_type("yes")? == YamlTokenValueType(true)
+	assert to_value_type("no")? == YamlTokenValueType(false)
+	assert to_value_type("0")? == YamlTokenValueType(i64(0))
+	assert to_value_type("1")? == YamlTokenValueType(i64(1))
 }
 
 fn test_z_ex_10_resolve_tags() ? {

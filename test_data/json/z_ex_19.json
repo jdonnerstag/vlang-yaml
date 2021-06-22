@@ -1,6 +1,6 @@
 {
   "canonical": 12345,
   "decimal": 12345,
-  "octal": "0o14",
-  "hexadecimal": "0xC"
+  "octal": 12,
+  "hexadecimal": 12
 }

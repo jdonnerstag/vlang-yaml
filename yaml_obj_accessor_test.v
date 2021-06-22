@@ -236,11 +236,11 @@ fn test_z_ex_17() ? {
 	assert docs.documents.len == 1
 
 	x1 := docs.get(0)
-	assert x1.get("unicode")?.string()? == "Sosa did fine.\\u263A"
-	assert x1.get("control")?.string()? == "\\b1998\\t1999\\t2000\\n"
-	assert x1.get("hex esc")?.string()? == "\\x0d\\x0a is \\r\\n"
+	assert x1.get("unicode")?.string()? == "Sosa did fine.☺"
+	assert x1.get("control")?.string()? == "\b1998\t1999\t2000\n"
+	assert x1.get("hex esc")?.string()? == "\r\n is \r\n"
 	assert x1.get("single")?.string()? == "\"Howdy!\" he cried."
-	assert x1.get("quoted")?.string()? == " # Not a ''comment''."
+	assert x1.get("quoted")?.string()? == " # Not a 'comment'."
 	assert x1.get("tie-fighter")?.string()? == "|\\-*-/|"
 }
 
@@ -257,7 +257,7 @@ fn test_z_ex_18() ? {
 	assert x1.get("plain 5")?.string()? == "This is another example that should work"
 	assert x1.get("plain 6")?.string()? == "The second line\nis more indented"
 
-	assert x1.get("quoted")?.string()? == "So does this quoted scalar with.\\n"
+	assert x1.get("quoted")?.string()? == "So does this quoted scalar with.\n"
 }
 
 fn test_z_ex_19() ? {
@@ -268,8 +268,8 @@ fn test_z_ex_19() ? {
 	x1 := docs.get(0)
 	assert x1.get("canonical")?.string()? == "12345"
 	assert x1.get("decimal")?.int()? == 12345
-	assert x1.get("octal")?.string()? == "0o14"
-	assert x1.get("hexadecimal")?.string()? == "0xC"
+	assert x1.get("octal")?.int()? == 12
+	assert x1.get("hexadecimal")?.int()? == 12
 }
 
 fn test_z_ex_20() ? {
@@ -337,7 +337,7 @@ fn test_z_ex_24() ? {
 
 	assert x1.get(2, "start", "x")?.string()? == "73"
 	assert x1.get(2, "start", "y")?.string()? == "129"
-	assert x1.get(2, "color")?.string()? == "0xFFEEBB"
+	assert x1.get(2, "color")?.int()? == 0xFFEEBB
 	assert x1.get(2, "text")?.string()? == "Pretty vector drawing."
 }
 

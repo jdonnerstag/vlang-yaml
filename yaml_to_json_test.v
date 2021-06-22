@@ -27,8 +27,12 @@ fn test_compare_with_json_files() ? {
 		re = regex.regex_opt("[\n\r]+\\s*")?
 		str = re.replace_simple(str, "")
 
-		json = json.replace("\n", "\\n")
+		str = str.replace("\\n", "\n")
+		str = str.replace("\\r", "\r")
+		str = str.replace("\\b", "\b")
+		str = str.replace("\\t", "\t")
 		
+		eprintln(str)
 		assert json == str
 	}
 }

@@ -373,11 +373,11 @@ fn test_z_ex_17() ? {
 	assert x1 is YamlMapValue
 	if x1 is YamlMapValue {
 		assert x1.obj.len == 6
-		assert x1.obj["unicode"] == YamlValue("Sosa did fine.\\u263A")
-		assert x1.obj["control"] == YamlValue("\\b1998\\t1999\\t2000\\n")
-		assert x1.obj["hex esc"] == YamlValue("\\x0d\\x0a is \\r\\n")
+		assert x1.obj["unicode"] == YamlValue("Sosa did fine.☺")
+		assert x1.obj["control"] == YamlValue("\b1998\t1999\t2000\n")
+		assert x1.obj["hex esc"] == YamlValue("\r\n is \r\n")
 		assert x1.obj["single"] == YamlValue("\"Howdy!\" he cried.")
-		assert x1.obj["quoted"] == YamlValue(" # Not a ''comment''.")
+		assert x1.obj["quoted"] == YamlValue(" # Not a 'comment'.")
 		assert x1.obj["tie-fighter"] == YamlValue("|\\-*-/|")
 	}
 }
@@ -397,7 +397,7 @@ fn test_z_ex_18() ? {
 		assert x1.obj["plain 5"] == YamlValue("This is another example that should work")
 		assert x1.obj["plain 6"] == YamlValue("The second line\nis more indented")
 
-		assert x1.obj["quoted"] == YamlValue("So does this quoted scalar with.\\n")
+		assert x1.obj["quoted"] == YamlValue("So does this quoted scalar with.\n")
 	}
 }
 
@@ -411,8 +411,8 @@ fn test_z_ex_19() ? {
 		assert x1.obj.len == 4
 		assert x1.obj["canonical"] == YamlValue(i64(12345))
 		assert x1.obj["decimal"] == YamlValue(i64(12345))
-		assert x1.obj["octal"] == YamlValue("0o14")
-		assert x1.obj["hexadecimal"] == YamlValue("0xC")
+		assert x1.obj["octal"] == YamlValue(i64(12))
+		assert x1.obj["hexadecimal"] == YamlValue(i64(12))
 	}
 }
 
@@ -535,7 +535,7 @@ fn test_z_ex_24() ? {
 				assert x4a.obj["y"] == YamlValue(i64(129))
 			}
 
-			assert x6.obj["color"] == YamlValue("0xFFEEBB")
+			assert x6.obj["color"] == YamlValue(i64(0xFFEEBB))
 			assert x6.obj["text"] == YamlValue("Pretty vector drawing.")
 		}
 	}

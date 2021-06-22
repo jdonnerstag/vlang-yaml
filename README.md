@@ -17,6 +17,8 @@ users to define their own [attributes] right now)
 - Value types, such as string, int, float and bool are auto-detected and carried forward
 - Tag definitions and references are mostly supported. By default references get replaced with their definition.
 - Multiple YAML documents within a file is supported (mostly)
+- un-escape and interpolate strings, hex numbers, etc.
+
 
 ## Architecture
 
@@ -64,6 +66,8 @@ TextScanner: split text into string tokens (generic)
 	// with additional options
 	docs := yaml.yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 
+	// Path-like getter for YAML values
+	assert x1.get(0, "center", "x")?.int()? == 73
 ```
 
 ## Examples
