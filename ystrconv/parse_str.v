@@ -7,7 +7,7 @@ const (
 	re_int = regex.regex_opt("[+-]?[0-9]+") or { panic("Invalid regex: 're_int'") }
 
 	// V's "simplified" regex implementation is useless. The following simple 
-	// regex doesn#t work.
+	// regex doesn't work.
 	re_float = regex.regex_opt("[-+]?([0-9]*[.])?[0-9]+([eE][-+]?[0-9]+)?") or { panic("Invalid regex: 're_float'") }
 )
 */

@@ -1,8 +1,8 @@
-module yaml
+module ystrconv
 
 import math
 
-fn char_to_base(ch byte, base int) ?int {
+pub fn char_to_base(ch byte, base int) ?int {
 	mut i := int(ch)
 	if ch >= `0` && ch < (`0`+ math.min(base, 10)) {
 		i = i - int(`0`)
@@ -16,7 +16,7 @@ fn char_to_base(ch byte, base int) ?int {
 	return i
 }
 
-fn parse_number_fix_length(str string, pos int, len int, base int) ?i64 {
+pub fn parse_number_fix_length(str string, pos int, len int, base int) ?i64 {
 	if (pos + len) <= str.len {
 		mut rtn := i64(0)
 		for i in pos .. (pos + len) {
@@ -29,7 +29,7 @@ fn parse_number_fix_length(str string, pos int, len int, base int) ?i64 {
 	return error("Invalid length. Expected $len more chars: '${str[pos ..]}'")
 }
 
-fn parse_number_variable_length(str string, pos int, base int) ?i64 {
+pub fn parse_number_variable_length(str string, pos int, base int) ?i64 {
 	mut rtn := i64(0)
 	for ch in str[pos .. ] {
 		x := char_to_base(ch, base)?
@@ -38,7 +38,7 @@ fn parse_number_variable_length(str string, pos int, base int) ?i64 {
 	return rtn
 }
 
-fn int_to_bytes(i i64) []byte {
+pub fn int_to_bytes(i i64) []byte {
 	if i < 0x0100 { return [byte(i)] }
 
 	a := byte((i >> 0) & 0xff)
@@ -56,7 +56,7 @@ fn int_to_bytes(i i64) []byte {
 	return [h, g, f, e, d, c, b, a]
 }
 
-fn interpolate_double_quoted_string(val string) ?string {
+pub fn interpolate_double_quoted_string(val string) ?string {
 	if val.contains("\\") == false { return val }
 
 	mut str := ""
@@ -104,7 +104,7 @@ fn interpolate_double_quoted_string(val string) ?string {
 // interpolate_single_quoted_string  In Yaml single quoted strings are used
 // when unescaping is not what you want. The only exception being '', which
 // will be replaced with a single quote, e.g. 'this is a ''test'''
-fn interpolate_single_quoted_string(val string) string {
+pub fn interpolate_single_quoted_string(val string) string {
 	return val.replace("''", "'")
 }
 
@@ -112,7 +112,7 @@ fn interpolate_single_quoted_string(val string) string {
 // 0x1A
 // 0o12
 // 0b1100100
-fn interpolate_plain_value(str string) string {
+pub fn interpolate_plain_value(str string) string {
 	mut base := 10
 	if str.starts_with("0x") {
 		base = 16

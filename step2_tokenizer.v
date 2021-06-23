@@ -110,10 +110,10 @@ fn is_quoted(str string, ch byte) bool {
 fn remove_quotes(str string) ?string {
 	if is_quoted(str, `"`) {
 		val := str[1 .. str.len - 1]
-		return interpolate_double_quoted_string(val)
+		return ystrconv.interpolate_double_quoted_string(val)
 	} else if is_quoted(str, `'`) {
 		val := str[1 .. str.len - 1]
-		return interpolate_single_quoted_string(val)
+		return ystrconv.interpolate_single_quoted_string(val)
 	}
 	return str
 }
@@ -134,7 +134,7 @@ fn cmp_lowercase(str1 string, str2 string) bool {
 // Remove any optionally existing quotes for string types
 fn to_value_type(val string) ?YamlTokenValueType {
 	// Convert 0x.., 0o.. and 0b.. to decimal integers
-	str := interpolate_plain_value(val)
+	str := ystrconv.interpolate_plain_value(val)
 
 	if ystrconv.is_int(str) {
 		return str.i64()

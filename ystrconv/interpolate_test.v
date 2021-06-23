@@ -1,4 +1,4 @@
-module yaml
+module ystrconv
 
 import encoding.utf8
 
