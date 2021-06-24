@@ -1,6 +1,7 @@
 module ystrconv
 
 import math
+import strings
 
 pub fn char_to_base(ch byte, base int) ?int {
 	mut i := int(ch)
@@ -59,46 +60,46 @@ pub fn int_to_bytes(i i64) []byte {
 pub fn interpolate_double_quoted_string(val string) ?string {
 	if val.contains("\\") == false { return val }
 
-	mut str := ""
+	mut str := strings.new_builder(val.len)
 	mut pos := 0
 	for pos < val.len {
 		ch := val[pos]
 		if ch == `\\` && (pos + 1) < val.len {
 			x := val[pos + 1]
-			if x == `a` { str += "\x07" }
-			else if x == `b` { str += "\x08" }
-			else if x == `e` { str += "\x1b" }
-			else if x == `f` { str += "\x0c" }
-			else if x == `n` { str += "\x0a" }
-			else if x == `r` { str += "\x0d" }
-			else if x == `t` { str += "\x09" }
-			else if x == `v` { str += "\x0b" }
+			if x == `a` { str.write_b(0x07) }
+			else if x == `b` { str.write_b(0x08) }
+			else if x == `e` { str.write_b(0x1b) }
+			else if x == `f` { str.write_b(0x0c) }
+			else if x == `n` { str.write_b(0x0a) }
+			else if x == `r` { str.write_b(0x0d) }
+			else if x == `t` { str.write_b(0x09) }
+			else if x == `v` { str.write_b(0x0b) }
 			else if x == `x` { 
-				str += int_to_bytes(parse_number_fix_length(val, pos + 2, 2, 16)?).bytestr()
+				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 2, 2, 16)?).bytestr())
 				pos += 2
 			} else if x == `u` { 
 				cp := parse_number_fix_length(val, pos + 2, 4, 16)?
-				str += utf32_to_str(u32(cp))
+				str.write_string(utf32_to_str(u32(cp)))
 				pos += 4
 			} else if x == `U` { 
 				cp := parse_number_fix_length(val, pos + 2, 8, 16)?
-				str += utf32_to_str(u32(cp))
+				str.write_string(utf32_to_str(u32(cp)))
 				pos += 8
 			} else if x >= `0` && x < `8` { 
-				str += int_to_bytes(parse_number_fix_length(val, pos + 1, 3, 8)?).bytestr()
+				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 1, 3, 8)?).bytestr())
 				pos += 2
 			} else {
 				// Has no special meaning
-				str += val[(pos + 1) .. (pos + 2)]
+				str.write_b(val[pos + 1])
 			}
 			pos ++
 		} else {
-			str += val[pos .. pos + 1]
+			str.write_b(val[pos])
 		}
 		pos ++
 	}
 
-	return str
+	return str.str()
 }
 
 // interpolate_single_quoted_string  In Yaml single quoted strings are used
