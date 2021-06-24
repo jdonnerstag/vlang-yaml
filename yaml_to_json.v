@@ -1,11 +1,11 @@
 module yaml
 
+import strings
+
 
 // YamlJson This is mostly an internal struct to namespace some functions.
 pub struct YamlJson {
 	tokens []YamlToken
-pub mut:
-	json string
 }
 
 // yaml_to_json Read the yaml file and convert it into a JSON string
@@ -20,24 +20,19 @@ pub fn yaml_to_json(fpath string, args NewTokenizerParams) ?string {
 // yaml_to_json_root Main entry point for converting the YAML tokens
 // into a JSON string 
 fn (mut json YamlJson) yaml_to_json_root(debug int) ?string {
-
 	if debug > 1 { eprintln("-------- yaml_to_json") }
-	mut str := ""
-	mut astr := ""
+
+	mut str := strings.new_builder(4000)
 	mut pos := 0
 	for pos < json.tokens.len {
 		tok := json.tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
 		if tok.typ == YamlTokenKind.start_list { 
-			str += "["
-			pos, astr = json.yaml_to_json_list_parent(pos + 1, debug)?
-			str += astr
+			pos = json.yaml_to_json_list_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.start_object { 
-			str += "{"
-			pos, astr = json.yaml_to_json_map_parent(pos + 1, debug)?
-			str += astr
+			pos = json.yaml_to_json_map_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.value {
-			str += tok.val.format()
+			str.write_string(tok.val.format())
 		} else if tok.typ == YamlTokenKind.close {
 			// ignore
 		} else if tok.typ == YamlTokenKind.end_of_document { 
@@ -47,44 +42,38 @@ fn (mut json YamlJson) yaml_to_json_root(debug int) ?string {
 		} else if tok.typ == YamlTokenKind.tag_def { 
 			// ignore
 		} else {
-			str += tok.val.format()
+			str.write_string(tok.val.format())
 		}
 	
 		pos += 1
 	}
 
 	if debug > 1 { eprintln("-------- yaml_to_json finished") }
-	return str
+	return str.str()
 }
 
-fn (mut json YamlJson) yaml_to_json_list_parent(idx int, debug int) ?(int, string) {
-
-	mut str := ""
-	mut astr := ""
+fn (mut json YamlJson) yaml_to_json_list_parent(idx int, mut str strings.Builder, debug int) ?int {
+	str.write_b(`[`)
 	mut pos := idx
 	for pos < json.tokens.len {
 		tok := json.tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
 		if tok.typ == YamlTokenKind.start_list { 
-			if str.len > 0 { str += ", " }
-			str += "["
-			pos, astr = json.yaml_to_json_list_parent(pos + 1, debug)?
-			str += astr
+			if pos > idx { str.write_string(", ") }
+			pos = json.yaml_to_json_list_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.start_object { 
-			if str.len > 0 { str += ", " }
-			str += "{"
-			pos, astr = json.yaml_to_json_map_parent(pos + 1, debug)?
-			str += astr
+			if pos > idx { str.write_string(", ") }
+			pos = json.yaml_to_json_map_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.value {
-			if str.len > 0 { str += ", " }
-			str += tok.val.format()
+			if pos > idx { str.write_string(", ") }
+			str.write_string(tok.val.format())
 		} else if tok.typ == YamlTokenKind.tag_ref {
-			if str.len > 0 { str += ", " }
+			if str.len > 0 { str.write_string(", ") }
 			x := tok.val.format()
-			y := "\"*" + x[1 ..]
-			str += y
+			str.write_string("\"*")
+			str.write_string(x[1 ..])
 		} else if tok.typ == YamlTokenKind.close {
-			str += "]"
+			str.write_b(`]`)
 			break
 		} else if tok.typ == YamlTokenKind.end_of_document { 
 			break
@@ -97,41 +86,38 @@ fn (mut json YamlJson) yaml_to_json_list_parent(idx int, debug int) ?(int, strin
 		pos += 1
 	}
 
-	return pos, str
+	return pos
 }
 
-fn (mut json YamlJson) yaml_to_json_map_parent(idx int, debug int) ?(int, string) {
-
-	mut str := ""
-	mut astr := ""
+fn (mut json YamlJson) yaml_to_json_map_parent(idx int, mut str strings.Builder, debug int) ?int {
+	str.write_b(`{`)
 	mut pos := idx
 	for pos < json.tokens.len {
 		tok := json.tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
 		if tok.typ == YamlTokenKind.start_list { 
-			str += "["
-			pos, astr = json.yaml_to_json_list_parent(pos + 1, debug)?
-			str += astr
+			pos = json.yaml_to_json_list_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.start_object { 
-			str += "{"
-			pos, astr = json.yaml_to_json_map_parent(pos + 1, debug)?
-			str += astr
+			pos = json.yaml_to_json_map_parent(pos + 1, mut str, debug)?
 		} else if tok.typ == YamlTokenKind.key {
-			if str.len > 0 { str += ", " }
+			if pos > idx { str.write_string(", ") }
 			x := tok.val.format()
 			if x.len > 0 && x[0] in [`"`, `'`] {
-				str += "$x: "
+				str.write_string(x)
+				str.write_string(": ")
 			} else {
-				str += "\"x\": "
+				str.write_b(`"`)
+				str.write_string(x)
+				str.write_string("\": ")
 			}
 		} else if tok.typ == YamlTokenKind.value {
-			str += tok.val.format()
+			str.write_string(tok.val.format())
 		} else if tok.typ == YamlTokenKind.tag_ref {
 			x := tok.val.format()
-			y := "\"*" + x[1 ..]
-			str += y
+			str.write_string("\"*")
+			str.write_string(x[1 ..])
 		} else if tok.typ == YamlTokenKind.close {
-			str += "}"
+			str.write_b(`}`)
 			break
 		} else if tok.typ == YamlTokenKind.end_of_document { 
 			break
@@ -144,5 +130,5 @@ fn (mut json YamlJson) yaml_to_json_map_parent(idx int, debug int) ?(int, string
 		pos += 1
 	}
 
-	return pos, str
+	return pos
 }
