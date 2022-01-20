@@ -6,9 +6,9 @@ import yaml.text_scanner as ts
 
 struct Scanner {
 pub mut:
-	// TODO: There is a separate branch for embedded struct. Due to a V-bug, it can not be used right now. 
+	// TODO: There is a separate branch for embedded struct. Due to a V-bug, it can not be used right now.
 	ts ts.TextScanner	// A somewhat generic text scanner
-	beginning_of_line bool = true	// True if we are *logically* at the beginning of a line 
+	beginning_of_line bool = true	// True if we are *logically* at the beginning of a line
 	tokens []Token		// YAML Tokens collected   TODO Keep for now, but remove ones next() is in place
 	indent_level []int = [1]	 // A stack of relevant indent levels
 	debug int 			// The larger, the more debug messages. 4 and 9 are reasonable values.
@@ -59,16 +59,13 @@ pub fn (s Scanner) scan() ScannerIter {
 }
 
 // This is basically a file reader and tokenizer. It's key properties are:
-// - It splits the (file) content into a series of basic tokens, such as newline, 
+// - It splits the (file) content into a series of basic tokens, such as newline,
 //   "-", ":", "{", "}", "[", etc.
-// - It properly handles quoted text, such as ".." and also the variations of 
+// - It properly handles quoted text, such as ".." and also the variations of
 //   multi-line text
 // - Indentation plays a major role in YAML. Every token provide the indentation
 //   level (== column)
-pub fn yaml_scanner(fpath string, debug int) ?Scanner {
-	if debug > 2 { eprintln("YAML file: $fpath") }
-
-	content := os.read_file(fpath)?
+pub fn yaml_scanner(content string, debug int) ?Scanner {
 	if debug > 2 { eprintln("content: \n'$content'") }
 
 	mut scanner := new_scanner(content, debug)?
@@ -93,8 +90,8 @@ pub fn (s Scanner) len() int {
 // TODO rename fn. It no longer adds a token to something
 fn (mut s Scanner) add_token(t_type TokenKind, val string) Token {
 	tok := Token{ typ: t_type, column: s.indent_level.last(), val: val }
-	if s.debug > 7 { 
-		eprintln("new token: line-no: $s.ts.line_no, $s.indent_level, $t_type, '$val'") 
+	if s.debug > 7 {
+		eprintln("new token: line-no: $s.ts.line_no, $s.indent_level, $t_type, '$val'")
 	}
 	return tok
 }
@@ -147,21 +144,21 @@ fn (mut s Scanner) catch_up() ?Token {
 fn (mut s Scanner) new_indent_level(pos int) {
 	if pos < 0 {
 		// Remove all indent levels, except the first one
-		for s.indent_level.len > 1 { 
-			s.indent_level.pop() 
+		for s.indent_level.len > 1 {
+			s.indent_level.pop()
 		}
 		return
 	}
 
 	// Remove all indent levels, until 'column'
 	col := pos - s.ts.column_pos + 1	// Column
-	for (s.indent_level.len > 1) && (s.indent_level.last() > col) { 
-		s.indent_level.pop() 
+	for (s.indent_level.len > 1) && (s.indent_level.last() > col) {
+		s.indent_level.pop()
 	}
 
 	// Add an indent level, if new level is greater then the latest one
-	if s.indent_level.last() < col { 
-		s.indent_level << col 
+	if s.indent_level.last() < col {
+		s.indent_level << col
 	}
 }
 
@@ -197,16 +194,16 @@ fn (mut s Scanner) next_token() ?Token {
 	if s.block_levels.len > 0 {
 		return s.block_scanner()
 	}
-	
+
 	for !s.ts.is_eof() {
 		c := s.ts.at_pos()
-		if s.debug > 8 { 
+		if s.debug > 8 {
 			eprintln("YAML: lineno: $s.ts.line_no, pos: $s.ts.pos, bol: ${s.beginning_of_line}, indent: ${s.indent_level.last()} (${s.indent_level.len}), str='${s.ts.substr_escaped(s.ts.pos, 20)}'")
 		}
 
 		// Some additional tokens/chars are considered only at the beginning of a line.
-		// "Beginning of line" definition is a bit tricky: It is used to determine the 
-		// indent level. Usually it is the first non-space char, but in case of e.g. 
+		// "Beginning of line" definition is a bit tricky: It is used to determine the
+		// indent level. Usually it is the first non-space char, but in case of e.g.
 		// "  - text", the indent level for "-" is 3 and for "text" it is 5.
 		if s.beginning_of_line == true {
 			if c == ` ` {
@@ -233,8 +230,8 @@ fn (mut s Scanner) next_token() ?Token {
 				str := s.ts.read_line()
 				return s.add_token(.tag_directive, str)
 			}
-		} 
-		
+		}
+
 		if c in [`"`, `'`] {	// quoted strings
 			return s.quoted_string_scanner()
 		} else if c in [`>`, `|`] {		// (multi-line) flow text
@@ -242,7 +239,7 @@ fn (mut s Scanner) next_token() ?Token {
 		} else if c == `#` {	// Comment
 			if tok := s.catch_up() {
 				return tok
-			} 
+			}
 			s.ts.skip_to_eol()
 		} else if (c == `:`) && s.ts.is_followed_by_space_or_eol() {	// key value separator: key: value
 			if tok := s.catch_up() {
@@ -265,15 +262,15 @@ fn (mut s Scanner) next_token() ?Token {
 		} else {
 			if s.beginning_of_line {
 				// This is the first non-space character
-				// If required, adjust the indent level 
-				s.new_indent_level(s.ts.pos) 
+				// If required, adjust the indent level
+				s.new_indent_level(s.ts.pos)
 				s.beginning_of_line = false
 			}
 			s.ts.move(1)
-		} 
+		}
 	}
 
-	// Execute any outstanding (delayed) activities 
+	// Execute any outstanding (delayed) activities
 	// Make sure that we always end with a newline
 	tok := s.on_newline()
 	if tok.typ != TokenKind.newline {
@@ -306,7 +303,7 @@ fn (mut s Scanner) block_scanner() ?Token {
 			if start_ch == `{` && c != `}` { return error("Bracket mismatch: $start_ch .. $c") }
 			if tok := s.catch_up() {
 				return tok
-			} 
+			}
 			s.block_levels.pop()
 			tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1)?
 			s.ts.skip(1)	// Position the pointer right after the closing bracket.
@@ -314,7 +311,7 @@ fn (mut s Scanner) block_scanner() ?Token {
 		} else if ts.is_newline(c) {
 			if tok := s.catch_up() {
 				return tok
-			} 
+			}
 			s.newline()
 		} else if c in [`,`, `:`] {
 			if tok := s.catch_up() {
@@ -332,7 +329,7 @@ fn (mut s Scanner) block_scanner() ?Token {
 			s.ts.skip_to_eol()
 		} else {
 			s.ts.move(1)
-		} 
+		}
 	}
 	return error("Missing closing bracket: '$start_ch'")
 }
@@ -348,8 +345,8 @@ fn (mut s Scanner) quoted_string_scanner() ?Token {
 	return s.add_token(.xstr, str)
 }
 
-// flow_string_scanner YAML has support for multi line flow text, triggered by 
-// either '|' or '>'. Multi-line PLAIN text exists as well and has no start 
+// flow_string_scanner YAML has support for multi line flow text, triggered by
+// either '|' or '>'. Multi-line PLAIN text exists as well and has no start
 // indicator. Since the rules are quite different, plain text is handled
 // elsewhere.
 // The scanner position will be at the '|' or '>' char. A newline (or comment)
@@ -400,8 +397,8 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 			} else {
 				nl = if t_type == TokenKind.greater { " " } else { "\n" }
 			}
-		} else { 
-			break 
+		} else {
+			break
 		}
 	}
 
@@ -413,9 +410,9 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 	return s.add_token(.xstr, text)
 }
 
-// plain_multi_line_scanner This method is invoked at newline and if 
+// plain_multi_line_scanner This method is invoked at newline and if
 // catch_up() returned an .xstr token. This is potentially the first
-// line of a plain multi-line text. 
+// line of a plain multi-line text.
 // In any case an .xstr token will be returned. Either with the single
 // line plain value, or the multi-line plain value.
 // Upon return, the scanner position will be at the newline (or eof).
@@ -427,11 +424,11 @@ fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 	mut nl := " "
 
 	for !s.ts.is_eof() {
-		// Remember the current position if the line is not 
+		// Remember the current position if the line is not
 		// part of the multi-line
 		start_pos := s.ts.pos
 		s.newline()
-		
+
 		str := s.ts.read_line()
 
 		trimmed := str.trim_space()
@@ -439,13 +436,13 @@ fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 		x := ts.leading_spaces(str)	// The indent level of the current line
 
 		// See YAML spec: Empty lines or leading spaces, will trigger newline
-		if empty == true { 
-			text += "\n" 
+		if empty == true {
+			text += "\n"
 			nl = ""
 			continue
-		} else { 
+		} else {
 			text += nl
-			nl = " " 
+			nl = " "
 		}
 
 		// eprintln("plain: x: $x, indent: $indent, str: '${ts.str_escaped(str)}'")
@@ -465,6 +462,6 @@ fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 	}
 
 	// See YAML spec for plain text: leading and trailing spaces are trimmed.
-	text = text.trim_space() 
+	text = text.trim_space()
 	return Token{ ...tok, val: text }
 }

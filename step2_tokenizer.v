@@ -5,7 +5,7 @@ import yaml.text_scanner as ts
 
 // See https://yaml.org/spec/1.2/spec.html for all the nitty gritty details
 
-// YamlTokenKind The TextScanner tokens are text centric and quite basic. The 
+// YamlTokenKind The TextScanner tokens are text centric and quite basic. The
 // tokenizer reads the text tokens and derives YAML tokens. Each YAML token
 // will be of a specific kind.
 pub enum YamlTokenKind {
@@ -20,11 +20,11 @@ pub enum YamlTokenKind {
 	tag_def			// Text starting with '&'
 	tag_ref	   		// Text starting with '*'
 	tag_directive	// %TAG
-} 
+}
 
 // YamlTokenValueType The value of YamlToken can be any of these types.
 // The type is auto-detected. Quoted strings always remain strings (without quotes).
-// true / false, yes / no are valid boolean values. 0 / 1 are integers. 
+// true / false, yes / no are valid boolean values. 0 / 1 are integers.
 pub type YamlTokenValueType = string | i64 | f64 | bool		// TODO implement bool
 
 pub fn (typ YamlTokenValueType) str() string {
@@ -33,11 +33,11 @@ pub fn (typ YamlTokenValueType) str() string {
 		i64 { typ.str() }
 		f64 { typ.str() }
 		bool { typ.str() }
-	} 
+	}
 }
 
 fn fix_float_str(v f64) string {
-	mut x := v.str() 
+	mut x := v.str()
 	if x.len > 0 && x[x.len - 1] == `.` {
 		x += "0"
 	}
@@ -48,14 +48,14 @@ fn fix_float_str(v f64) string {
 // quoted, e.g. "..."
 pub fn (typ YamlTokenValueType) format() string {
 	return match typ {
-		string { 
+		string {
 			x := typ.replace('"', '\\"')
-			"\"$x\"" 
+			"\"$x\""
 		}
 		i64 { typ.str() }
 		f64 { fix_float_str(typ) }
 		bool { typ.str() }
-	} 
+	}
 }
 
 // YamlToken A YAML token is quite simple. It consists of a token-kind and
@@ -73,11 +73,10 @@ struct ParentNode {
 	block bool
 }
 
-// YamlTokenizer Iterate over the stream of text tokens provided by TextScanner and 
+// YamlTokenizer Iterate over the stream of text tokens provided by TextScanner and
 // transform it into respective YamlToken tokens.
 struct YamlTokenizer {
 pub:
-	fpath string			// file name
 	text string				// The full yaml document
 	newline string			// The auto-detected newline
 	encoding ts.Encodings	// Currently only utf-8 is supported
@@ -91,7 +90,7 @@ pub mut:
 }
 
 // token_followed_by Return true if the token following the one at position 'i',
-// is of type 'typ' or a newline token. 
+// is of type 'typ' or a newline token.
 fn (scanner Scanner) token_followed_by(i int, typ TokenKind) bool {
 	j := i + 1
 	if j < scanner.tokens.len {
@@ -144,12 +143,12 @@ fn to_value_type(val string) ?YamlTokenValueType {
 		return true
 	} else if cmp_lowercase(str, "false") || cmp_lowercase(str, "no") {
 		return false
-	} 
+	}
 	return YamlTokenValueType(remove_quotes(str)?)
 }
 
-// new_token Create a new token. Dynamically determine the value type. 
-// See to_value_type(). 
+// new_token Create a new token. Dynamically determine the value type.
+// See to_value_type().
 [inline]
 fn new_token(typ YamlTokenKind, val string) ?YamlToken {
 	return YamlToken{ typ: typ, val: to_value_type(val)? }
@@ -175,21 +174,20 @@ pub:
 	replace_tags bool = true
 }
 
-// yaml_tokenizer Iterate over the stream of text tokens provided by TextScanner and 
+// yaml_tokenizer Iterate over the stream of text tokens provided by TextScanner and
 // transform it into respective YamlToken tokens.
-// Please note that we have 2 approaches at different levels to replace tags. If you 
-// enable it in the tokenizer, then the tag reference will be replaced with a copy of 
+// Please note that we have 2 approaches at different levels to replace tags. If you
+// enable it in the tokenizer, then the tag reference will be replaced with a copy of
 // all tokens associated with the tag reference.
-// The 2nd approach is implmented in the yaml reader. 
-pub fn yaml_tokenizer(fpath string, args NewTokenizerParams) ?YamlTokenizer {
-	scanner := yaml_scanner(fpath, args.debug)?
+// The 2nd approach is implmented in the yaml reader.
+pub fn yaml_tokenizer(content string, args NewTokenizerParams) ?YamlTokenizer {
+	scanner := yaml_scanner(content, args.debug)?
 
 	if scanner.tokens.len == 0 { return error("No YAML tokens found") }
-	
+
 	if args.debug > 2 { eprintln("------------- yaml_tokenizer") }
 
 	mut tokenizer := YamlTokenizer{
-		fpath: fpath,
 		text: scanner.ts.text,
 		newline: scanner.ts.newline,
 		encoding: scanner.ts.encoding,
@@ -203,11 +201,11 @@ pub fn yaml_tokenizer(fpath string, args NewTokenizerParams) ?YamlTokenizer {
 }
 
 fn (tokenizer YamlTokenizer) add_tag_tokens(name string, mut tokens []YamlToken, start int) ? {
-	if tokens[start].typ == YamlTokenKind.value { 
+	if tokens[start].typ == YamlTokenKind.value {
 		tok := tokens[start]
 		tokens << tok
 		return
-	} 
+	}
 
 	stop := tokens.len
 	mut count := 0
@@ -217,7 +215,7 @@ fn (tokenizer YamlTokenizer) add_tag_tokens(name string, mut tokens []YamlToken,
 		tokens << tok
 		if tok.typ in [YamlTokenKind.start_list, YamlTokenKind.start_object] {
 			count ++
-		} else if tok.typ == YamlTokenKind.close { 
+		} else if tok.typ == YamlTokenKind.close {
 			count --
 			if count <= 0 { return }
 		}
@@ -251,7 +249,7 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 				// ignore
 			}
 			continue
-		} 
+		}
 
 		for parents.len > 0 && parents.last().indent > t.column {
 			parents.pop()
@@ -333,7 +331,7 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 	return tokens
 }
 
-/* See ex 2.11: we do not support complex mapping key, such as 
+/* See ex 2.11: we do not support complex mapping key, such as
 
 ? - Detroit Tigers
   - Chicago cubs
