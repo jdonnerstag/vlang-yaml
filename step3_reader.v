@@ -2,8 +2,8 @@ module yaml
 
 import yaml.text_scanner as ts
 
-// Even though the compiler is able to handle this, and smart-cast 
-// does not raise a compiler error, it is not possible to access the 
+// Even though the compiler is able to handle this, and smart-cast
+// does not raise a compiler error, it is not possible to access the
 // array in the if-clause, e.g. if x is []YamlValue { assert x.len == 3 }
 // does not work!!! Putting them into a struct is a workaround.
 // type YamlValue = map[string]YamlValue | []YamlValue | string
@@ -48,8 +48,8 @@ pub struct NewYamlReaderParams {
 	replace_tags ReplaceTagsEnum = ReplaceTagsEnum.in_reader
 }
 
-// yaml_reader This is the main function to read a YAML file and convert 
-// the YAML data into 'objects'. In V structs must be defined at compile 
+// yaml_reader This is the main function to read a YAML file and convert
+// the YAML data into 'objects'. In V structs must be defined at compile
 // time, and V [attributes] are not user extensible. V's json implementation
 // makes use of attributes. Without a better option at hand, the implementation
 // dynamically creates a tree structure leveraging a sumtype.
@@ -75,26 +75,26 @@ fn (v YamlTokenValueType) to_yamlvalue() YamlValue {
 	return match v {
 		string { YamlValue(v) }
 		i64 { YamlValue(v) }
-		f64 { YamlValue(v) } 
+		f64 { YamlValue(v) }
 	}
 */
-	if v is string { 
+	if v is string {
 		a := v
-		return YamlValue(a) 
-	} else if v is i64 { 
+		return YamlValue(a)
+	} else if v is i64 {
 		a := v
-		return YamlValue(a) 
-	} else if v is f64 { 
+		return YamlValue(a)
+	} else if v is f64 {
 		a := v
-		return YamlValue(a) 
-	} else if v is bool { 
+		return YamlValue(a)
+	} else if v is bool {
 		a := v
-		return YamlValue(a) 
+		return YamlValue(a)
 	}
 	panic("Will not happen")
 }
 
-// read_root Entry point to convert yaml tokens into yam values 
+// read_root Entry point to convert yaml tokens into yam values
 fn (mut values YamlValues) read_root(tokens []YamlToken, debug int) ? {
 
 	if debug > 1 { eprintln("-------- yaml_reader") }
@@ -102,34 +102,34 @@ fn (mut values YamlValues) read_root(tokens []YamlToken, debug int) ? {
 	for pos < tokens.len {
 		tok := tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
-		if tok.typ == YamlTokenKind.start_list { 
+		if tok.typ == YamlTokenKind.start_list {
 			mut obj := YamlListValue{}
 			pos += values.read_with_list_parent(tokens[pos + 1 ..], mut obj, debug)?
 			values.documents << obj
-		} else if tok.typ == YamlTokenKind.start_object { 
+		} else if tok.typ == YamlTokenKind.start_object {
 			mut obj := YamlMapValue{}
 			pos += values.read_with_map_parent(tokens[pos + 1 ..], mut obj, debug)?
 			values.documents << obj
 		} else if tok.typ == YamlTokenKind.value {
 			values.documents << tok.val.to_yamlvalue()
-		} else if tok.typ == YamlTokenKind.end_of_document { 
+		} else if tok.typ == YamlTokenKind.end_of_document {
 			// ignore
-		} else if tok.typ == YamlTokenKind.new_document { 
+		} else if tok.typ == YamlTokenKind.new_document {
 			// ignore
-		} else if tok.typ == YamlTokenKind.tag_def { 
+		} else if tok.typ == YamlTokenKind.tag_def {
 			return error("Found tag definition on top level (document): '$tok.val'")
 		} else {
 			return error("Unexpected token: $tok")
 		}
-	
+
 		pos += 1
 	}
 
-	if debug > 1 { 
+	if debug > 1 {
 		eprintln("-------- yaml_reader: output generated")
-		eprintln(values.documents) 
-		eprintln("tags:") 
-		eprintln(values.tags) 
+		eprintln(values.documents)
+		eprintln("tags:")
+		eprintln(values.tags)
 	}
 }
 
@@ -141,33 +141,33 @@ fn (mut values YamlValues) read_with_list_parent(tokens []YamlToken, mut parent 
 	for pos < tokens.len {
 		tok := tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
-		if tok.typ == YamlTokenKind.start_list { 
+		if tok.typ == YamlTokenKind.start_list {
 			mut obj := YamlListValue{}
 			pos += values.read_with_list_parent(tokens[pos + 1 ..], mut obj, debug)?
 			parent.ar << obj
-		} else if tok.typ == YamlTokenKind.start_object { 
+		} else if tok.typ == YamlTokenKind.start_object {
 			mut obj := YamlMapValue{}
 			pos += values.read_with_map_parent(tokens[pos + 1 ..], mut obj, debug)?
 			parent.ar << obj
-		} else if tok.typ == YamlTokenKind.value { 
+		} else if tok.typ == YamlTokenKind.value {
 			obj := tok.val.to_yamlvalue()
 			parent.ar << obj
 			if tag.len > 0 {
 				values.tags[tag] = obj
 				tag = ""
 			}
-		} else if tok.typ == YamlTokenKind.key { 
+		} else if tok.typ == YamlTokenKind.key {
 			return error("Did not expected a 'key' in a list context")
-		} else if tok.typ == YamlTokenKind.close { 
+		} else if tok.typ == YamlTokenKind.close {
 			break
-		} else if tok.typ == YamlTokenKind.end_of_document { 
+		} else if tok.typ == YamlTokenKind.end_of_document {
 			break
-		} else if tok.typ == YamlTokenKind.new_document { 
+		} else if tok.typ == YamlTokenKind.new_document {
 			break
-		} else if tok.typ == YamlTokenKind.tag_def { 
+		} else if tok.typ == YamlTokenKind.tag_def {
 			tag = tok.val.str()
-		} else if tok.typ == YamlTokenKind.tag_ref { 
-			obj := values.tags[tok.val.str()]
+		} else if tok.typ == YamlTokenKind.tag_ref {
+			obj := values.tags[tok.val.str()]?
 			parent.ar << obj
 		} else {
 			return error("Unexpected token: $tok")
@@ -194,38 +194,38 @@ fn (mut values YamlValues) read_with_map_parent(tokens []YamlToken, mut parent Y
 	for pos < tokens.len {
 		tok := tokens[pos]
 		if debug > 1 { eprintln("pos: $pos, type: $tok.typ, val: '$tok.val'") }
-		if tok.typ == YamlTokenKind.start_list { 
+		if tok.typ == YamlTokenKind.start_list {
 			mut obj := YamlListValue{}
 			pos += values.read_with_list_parent(tokens[pos + 1 ..], mut obj, debug)?
 			parent.obj[key] = obj
 			key = ""
 			values.add_tag(tag, obj)
 			tag = ""
-		} else if tok.typ == YamlTokenKind.start_object { 
+		} else if tok.typ == YamlTokenKind.start_object {
 			mut obj := YamlMapValue{}
 			pos += values.read_with_map_parent(tokens[pos + 1 ..], mut obj, debug)?
 			parent.obj[key] = obj
 			key = ""
 			values.add_tag(tag, obj)
 			tag = ""
-		} else if tok.typ == YamlTokenKind.value { 
+		} else if tok.typ == YamlTokenKind.value {
 			obj := tok.val.to_yamlvalue()
 			parent.obj[key] = obj
 			key = ""
 			values.add_tag(tag, obj)
 			tag = ""
-		} else if tok.typ == YamlTokenKind.key { 
+		} else if tok.typ == YamlTokenKind.key {
 			key = tok.val.str()
-		} else if tok.typ == YamlTokenKind.close { 
+		} else if tok.typ == YamlTokenKind.close {
 			break
-		} else if tok.typ == YamlTokenKind.end_of_document { 
+		} else if tok.typ == YamlTokenKind.end_of_document {
 			break
-		} else if tok.typ == YamlTokenKind.new_document { 
+		} else if tok.typ == YamlTokenKind.new_document {
 			break
-		} else if tok.typ == YamlTokenKind.tag_def { 
+		} else if tok.typ == YamlTokenKind.tag_def {
 			tag = tok.val.str()
-		} else if tok.typ == YamlTokenKind.tag_ref { 
-			parent.obj[key] = values.tags[tok.val.str()]
+		} else if tok.typ == YamlTokenKind.tag_ref {
+			parent.obj[key] = values.tags[tok.val.str()]?
 		} else {
 			return error("Unexpected token: $tok")
 		}

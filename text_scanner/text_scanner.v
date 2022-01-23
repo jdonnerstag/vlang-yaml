@@ -13,9 +13,9 @@ pub:
 
 pub mut:
 	pos int				// The current scanner position within the file
-	last_pos int		// The starting position of the current token 
+	last_pos int		// The starting position of the current token
 	line_no int	= 1		// The current line number
-	column_pos int		// Start-of-line position  
+	column_pos int		// Start-of-line position
 }
 
 pub fn read_file(fpath string, debug int) ?TextScanner {
@@ -40,10 +40,10 @@ pub fn new_scanner(data string) ?TextScanner {
 
 	newline := detect_newline(data) or { "\n" }
 
-	return TextScanner{ 
-		pos: 0, 
-		text: data, 
-		encoding: enc, 
+	return TextScanner{
+		pos: 0,
+		text: data,
+		encoding: enc,
 		newline: newline
 	}
 }
@@ -82,9 +82,9 @@ pub fn is_newline(c byte) bool {
 // detect_newline Auto-detect newline
 pub fn detect_newline(str string) ?string {
 	for i, c in str {
-		if is_newline(c) { 
+		if is_newline(c) {
 			// CR LF (Windows), LF (Unix) and CR (Macintosh)
-			len := if c == `\r` && (i + 1) < str.len && str[i + 1] == `\n` { 2 } else { 1 }	
+			len := if c == `\r` && (i + 1) < str.len && str[i + 1] == `\n` { 2 } else { 1 }
 			return str[i .. (i + len)]
 		}
 	}
@@ -112,19 +112,19 @@ pub fn (mut s TextScanner) move(incr int) {
 	s.pos += incr
 }
 
-// move_to_eol Move the position to next eol (or eof). 
+// move_to_eol Move the position to next eol (or eof).
 // Do not mark it as being read.
 pub fn (mut s TextScanner) move_to_eol() {
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
-		if is_newline(c) { 
-			return 
+		if is_newline(c) {
+			return
 		}
 		s.pos ++
 	}
 }
 
-// skip_to_eol Move the position to next eol (or eof) 
+// skip_to_eol Move the position to next eol (or eof)
 // and mark it as being read.
 pub fn (mut s TextScanner) skip_to_eol() {
 	s.move_to_eol()
@@ -173,7 +173,7 @@ pub fn (mut s TextScanner) at_str(len int) string {
 	return s.text[s.pos ..]
 }
 
-// is_followed_by_space_or_eol Return true, if the current char is 
+// is_followed_by_space_or_eol Return true, if the current char is
 // followed by either a space or newline, or eof.
 pub fn (s TextScanner) is_followed_by_space_or_eol() bool {
 	pos := s.pos + 1
@@ -181,7 +181,7 @@ pub fn (s TextScanner) is_followed_by_space_or_eol() bool {
 	return s.text[pos] in [` `, `\r`, `\n`]
 }
 
-// is_followed_by Return true, if the current char is followed by char. 
+// is_followed_by Return true, if the current char is followed by char.
 pub fn (s TextScanner) is_followed_by(c byte) bool {
 	pos := s.pos + 1
 	if pos >= s.text.len { return false }
@@ -215,13 +215,13 @@ pub fn (s TextScanner) substr(pos int, len int) string {
 	return s.text[p .. (p + len)] + "..."
 }
 
-// substr_escaped For printing escape special chars such CR and LF 
+// substr_escaped For printing escape special chars such CR and LF
 pub fn (s TextScanner) substr_escaped(pos int, len int) string {
 	mut str := s.substr(pos, len)
 	return str_escaped(str)
 }
 
-// str_escaped For printing escape special chars such CR and LF 
+// str_escaped For printing escape special chars such CR and LF
 pub fn str_escaped(x string) string {
 	mut str := x
 	str = str.replace("\n", "\\n")
@@ -244,7 +244,7 @@ pub fn replace_nl_space(str string) string {
 			count = 0
 		}
 	}
-	return string(rtn)
+	return rtn.bytestr()
 }
 
 // quoted_string_scanner Scan strings quoted with either `"` or `'`
@@ -275,7 +275,7 @@ pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch byte, str strin
 // leading_spaces Determine the number of leading spaces (indentation)
 pub fn leading_spaces(str string) int {
 	for i, c in str {
-		if c.is_space() == false { 
+		if c.is_space() == false {
 			return i
 		}
 	}
