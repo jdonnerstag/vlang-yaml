@@ -64,10 +64,7 @@ pub fn (s Scanner) scan() ScannerIter {
 //   multi-line text
 // - Indentation plays a major role in YAML. Every token provide the indentation
 //   level (== column)
-pub fn yaml_scanner(fpath string, debug int) ?Scanner {
-	if debug > 2 { eprintln("YAML file: $fpath") }
-
-	content := os.read_file(fpath)?
+pub fn yaml_scanner(content string, debug int) ?Scanner {
 	if debug > 2 { eprintln("content: \n'$content'") }
 
 	mut scanner := new_scanner(content, debug)?

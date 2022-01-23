@@ -110,8 +110,8 @@ const (
 )
 
 fn test_z_ex_27() ? {
-	fpath := "$test_data_dir/z_ex_27.yaml"
-	scanner := yaml_scanner(fpath, debug)?
+	content := os.read_file("$test_data_dir/z_ex_27.yaml")?
+	scanner := yaml_scanner(content, debug)?
 
 	for i, tok in scanner.tokens {
 		assert tok.typ == z27[i].typ

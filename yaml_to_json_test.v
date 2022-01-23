@@ -17,7 +17,8 @@ fn test_compare_with_json_files() ? {
 		yf := "$test_data_dir/$f".replace(".json", ".yaml")
 		if os.is_file(yf) == false { continue }
 		eprintln("read yaml: $yf")
-		mut json := yaml_to_json(yf, replace_tags: true, debug: debug)?
+		content := os.read_file(yf)?
+		mut json := yaml_to_json(content, replace_tags: true, debug: debug)?
 
 		file_content := os.read_file("$test_data_dir/json/$f")?
 
@@ -31,14 +32,15 @@ fn test_compare_with_json_files() ? {
 		str = str.replace("\\r", "\r")
 		str = str.replace("\\b", "\b")
 		str = str.replace("\\t", "\t")
-		
+
 		eprintln(str)
 		assert json == str
 	}
 }
 
-fn read_yson_file(fname string, debug int) ?string {
-	mut json_data := yaml_to_json("$test_data_dir/${fname}.yaml", replace_tags: true, debug: debug)?
+fn read_json_file(fname string, debug int) ?string {
+	content := os.read_file("$test_data_dir/${fname}.yaml")?
+	mut json_data := yaml_to_json(content, replace_tags: true, debug: debug)?
 	if json_data.starts_with("[") {
 		return "{ \"ar\": $json_data }"
 	}
@@ -53,7 +55,7 @@ struct Zex01 {
 }
 
 fn test_z_ex_01() ? {
-	mut json_data := read_yson_file("z_ex_01", debug)?
+	mut json_data := read_json_file("z_ex_01", debug)?
 	// eprintln("$json_data")
 	xj := json.decode(Zex01, json_data)?
 	assert xj.ar.len == 3
@@ -69,7 +71,7 @@ struct Zex02 {
 }
 
 fn test_z_ex_02() ? {
-	mut json_data := read_yson_file("z_ex_02", debug)?
+	mut json_data := read_json_file("z_ex_02", debug)?
 	//eprintln("$json_data")
 
 	// The V built-in json parser is a little ..
@@ -79,16 +81,16 @@ fn test_z_ex_02() ? {
 
 	assert xj.hr == 65
 	assert xj.avg == 0.278
-	assert xj.rbi == 147 
+	assert xj.rbi == 147
 }
 
 struct Zex03 {
 	american []string
 	national []string
 }
-  
+
 fn test_z_ex_03() ? {
-	mut json_data := read_yson_file("z_ex_03", debug)?
+	mut json_data := read_json_file("z_ex_03", debug)?
 	//eprintln("$json_data")
 	xj := json.decode(Zex03, json_data)?
 
@@ -112,9 +114,9 @@ struct Zex04_inner {
 struct Zex04 {
 	ar []Zex04_inner
 }
-  
+
 fn test_z_ex_04() ? {
-	mut json_data := read_yson_file("z_ex_04", debug)?
+	mut json_data := read_json_file("z_ex_04", debug)?
 	//eprintln("$json_data")
 	xj := json.decode(Zex04, json_data)?
 

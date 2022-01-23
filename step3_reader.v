@@ -21,7 +21,6 @@ pub mut:
 
 pub struct YamlValues {
 pub:
-	fpath string		// file name
 	text string			// The full yaml document
 	newline string		// The auto-detected newline
 	encoding ts.Encodings	// Currently only utf-8 is supported
@@ -53,12 +52,11 @@ pub struct NewYamlReaderParams {
 // time, and V [attributes] are not user extensible. V's json implementation
 // makes use of attributes. Without a better option at hand, the implementation
 // dynamically creates a tree structure leveraging a sumtype.
-pub fn yaml_reader(fpath string, args NewYamlReaderParams) ?YamlValues {
+pub fn yaml_reader(content string, args NewYamlReaderParams) ?YamlValues {
 	replace_tags_in_tokenizer := args.replace_tags == ReplaceTagsEnum.in_tokenizer
-	tokenizer := yaml_tokenizer(fpath, replace_tags: replace_tags_in_tokenizer, debug: args.debug)?
+	tokenizer := yaml_tokenizer(content, replace_tags: replace_tags_in_tokenizer, debug: args.debug)?
 
 	mut values := YamlValues{
-		fpath: tokenizer.fpath,
 		text: tokenizer.text,
 		newline: tokenizer.newline,
 		encoding: tokenizer.encoding
