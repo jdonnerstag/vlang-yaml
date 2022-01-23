@@ -244,7 +244,7 @@ pub fn replace_nl_space(str string) string {
 			count = 0
 		}
 	}
-	return string(rtn.str())
+	return rtn.bytestr()
 }
 
 // quoted_string_scanner Scan strings quoted with either `"` or `'`

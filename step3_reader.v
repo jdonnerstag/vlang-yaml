@@ -165,7 +165,7 @@ fn (mut values YamlValues) read_with_list_parent(tokens []YamlToken, mut parent 
 		} else if tok.typ == YamlTokenKind.tag_def {
 			tag = tok.val.str()
 		} else if tok.typ == YamlTokenKind.tag_ref {
-			obj := values.tags[tok.val.str()]
+			obj := values.tags[tok.val.str()]?
 			parent.ar << obj
 		} else {
 			return error("Unexpected token: $tok")
@@ -223,7 +223,7 @@ fn (mut values YamlValues) read_with_map_parent(tokens []YamlToken, mut parent Y
 		} else if tok.typ == YamlTokenKind.tag_def {
 			tag = tok.val.str()
 		} else if tok.typ == YamlTokenKind.tag_ref {
-			parent.obj[key] = values.tags[tok.val.str()]
+			parent.obj[key] = values.tags[tok.val.str()]?
 		} else {
 			return error("Unexpected token: $tok")
 		}

@@ -1,7 +1,6 @@
 module yaml
 
 import os
-import strings
 import yaml.text_scanner as ts
 
 struct Scanner {
