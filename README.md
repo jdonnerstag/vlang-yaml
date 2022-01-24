@@ -50,21 +50,22 @@ TextScanner: split text into string tokens (generic)
 ```v
 	import yaml
 	
-	scanner := yaml.yaml_scanner(fpath, debug)?
+	content := os.read_file("myfile.yaml")?
+	scanner := yaml.yaml_scanner(content, debug)?
 	for i, tok in scanner.tokens { .. }
 
-	tokenizer := yaml.yaml_tokenizer(fpath, replace_tags: true, debug: debug)?
+	tokenizer := yaml.yaml_tokenizer(content, replace_tags: true, debug: debug)?
 	for i, tok in tokenizer.tokens { .. }
 
-	json_data := yaml.yaml_to_json(yf, replace_tags: true, debug: debug)?
+	json_data := yaml.yaml_to_json(content, replace_tags: true, debug: debug)?
 	println(json_data)
 
-	docs := yaml.yaml_reader(fpath)?
+	docs := yaml.yaml_reader(content)?
 	x := docs.get(0)	// Most files have only 1 (implict) document
 	assert x.get("american", 0)?.string()? == "Boston Red Sox"
 
 	// with additional options
-	docs := yaml.yaml_reader(fpath, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
+	docs := yaml.yaml_reader(content, replace_tags: yaml.ReplaceTagsEnum.in_reader, debug: debug)?
 
 	// Path-like getter for YAML values
 	assert x1.get(0, "center", "x")?.int()? == 73
