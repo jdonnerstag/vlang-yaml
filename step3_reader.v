@@ -1,6 +1,6 @@
 module yaml
 
-import yaml.text_scanner as ts
+import text_scanner as ts
 
 // Even though the compiler is able to handle this, and smart-cast
 // does not raise a compiler error, it is not possible to access the

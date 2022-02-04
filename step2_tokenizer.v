@@ -1,7 +1,7 @@
 module yaml
 
 import ystrconv
-import yaml.text_scanner as ts
+import text_scanner as ts
 
 // See https://yaml.org/spec/1.2/spec.html for all the nitty gritty details
 

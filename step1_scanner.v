@@ -1,7 +1,6 @@
 module yaml
 
-import os
-import yaml.text_scanner as ts
+import text_scanner as ts
 
 struct Scanner {
 pub mut:
