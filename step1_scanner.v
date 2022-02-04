@@ -139,6 +139,27 @@ fn (mut s Scanner) catch_up() ?Token {
 	return none
 }
 
+fn (mut s Scanner) new_indent_level_for_list(pos int) {
+	if pos < 0 {
+		// Remove all indent levels, except the first one
+		for s.indent_level.len > 1 {
+			s.indent_level.pop()
+		}
+		return
+	}
+
+	// Remove all indent levels, until 'column'
+	col := pos - s.ts.column_pos + 2	// Column
+	for (s.indent_level.len > 1) && (s.indent_level.last() >= col) {
+		s.indent_level.pop()
+	}
+
+	// Add an indent level, if new level is greater then the latest one
+	if s.indent_level.last() < col{
+		s.indent_level << col
+	}
+}
+
 fn (mut s Scanner) new_indent_level(pos int) {
 	if pos < 0 {
 		// Remove all indent levels, except the first one
@@ -210,7 +231,7 @@ fn (mut s Scanner) next_token() ?Token {
 			} else if c == `\t` {
 				return error("Tabs are not allowed for indentation. You must use spaces: '${s.ts.substr_escaped(s.ts.pos - 10, 20)}'")
 			} else if c in [`-`, `?`] && s.ts.is_followed_by_space_or_eol() {		// list or set
-				s.new_indent_level(s.ts.pos)
+				s.new_indent_level_for_list(s.ts.pos)
 				tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1)?
 				s.ts.skip(1)	// The next is optionally a space. It could as well be a newline
 				return tok
