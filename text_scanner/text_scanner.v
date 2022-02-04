@@ -258,6 +258,8 @@ pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch byte, str strin
 		c := s.text[s.pos]
 		if op(start_ch, s.text[s.pos ..]) {
 			s.move(2)
+		} else if c == `\\` { // `"\"str"`
+			s.move(2)
 		} else if c == start_ch {
 			s.skip(1)
 			s.last_pos = start_pos
