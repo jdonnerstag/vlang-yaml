@@ -277,7 +277,7 @@ fn (mut tokenizer YamlTokenizer) text_to_yaml_tokens(scanner &Scanner, debug int
 					tokens << new_str_token(YamlTokenKind.value, "")?
 				}
 			}
-			tokens << YamlToken{ typ: YamlTokenKind.key, val: to_value_type(t.val)? }
+			tokens << YamlToken{ typ: YamlTokenKind.key, val: t.val }
 		} else if t.typ == TokenKind.labr {
 			parents << ParentNode{ typ: "list", indent: t.column, block: true }
 			tokens << new_empty_token(YamlTokenKind.start_list)
