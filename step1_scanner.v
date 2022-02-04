@@ -186,7 +186,6 @@ fn (mut s Scanner) on_newline() Token {
 		if tok.typ == .xstr {
 			return s.plain_multi_line_scanner(s.ts.pos, tok)
 		}
-		return tok
 	}
 
 	// Nothing found to catch up
@@ -224,7 +223,7 @@ fn (mut s Scanner) next_token() ?Token {
 		// "Beginning of line" definition is a bit tricky: It is used to determine the
 		// indent level. Usually it is the first non-space char, but in case of e.g.
 		// "  - text", the indent level for "-" is 3 and for "text" it is 5.
-		if s.beginning_of_line == true {
+		if s.beginning_of_line {
 			if c == ` ` {
 				s.ts.skip(1)
 				continue
