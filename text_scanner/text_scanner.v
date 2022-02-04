@@ -157,6 +157,10 @@ pub fn (mut s TextScanner) move_to_end_of_word() int {
 	return s.pos
 }
 
+pub fn (mut s TextScanner) check_text() string {
+	return s.text[s.last_pos .. s.pos]
+}
+
 // get_text Retrieve the text from start_pos to the current position.
 // Update last_pos (mark the text as being read)
 pub fn (mut s TextScanner) get_text() string {

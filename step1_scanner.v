@@ -251,8 +251,16 @@ fn (mut s Scanner) next_token() ?Token {
 		}
 
 		if c in [`"`, `'`] {	// quoted strings
+			if s.ts.check_text().trim_space().len > 0 {
+				s.ts.move(1)
+				continue
+			}
 			return s.quoted_string_scanner()
 		} else if c in [`>`, `|`] {		// (multi-line) flow text
+			if s.ts.check_text().trim_space().len > 0 {
+				s.ts.move(1)
+				continue
+			}
 			return s.flow_string_scanner()
 		} else if c == `#` {	// Comment
 			if tok := s.catch_up() {
@@ -269,14 +277,33 @@ fn (mut s Scanner) next_token() ?Token {
 		} else if ts.is_newline(c) {
 			return s.on_newline()
 		} else if c in [`{`, `[`] {
+			if s.ts.check_text().trim_space().len > 0 {
+				s.ts.move(1)
+				continue
+			}
 			return s.open_block(c)
 		} else if c in [`!`, `&`, `*`] {	// Tag related
+			str0 := s.ts.check_text().trim_space()
+			if str0.len > 0 {
+				text := s.ts.read_line().trim_space()
+				tok := s.add_token(.xstr, text)
+				return tok
+			}
+
 			typ := s.to_token_kind(c)
 			s.ts.skip(1)		// Skip the leading char '!', '&', '*'
 			s.ts.move_to_end_of_word()
 			str := s.ts.get_text()
 			tok := s.add_token(typ, str)
 			return tok
+		} else if c in [`~`] { // null
+			str0 := s.ts.check_text()
+			if str0.len > 1 {
+				text := s.ts.read_line().trim_space()
+				tok := s.add_token(.xstr, text)
+				return tok
+			}
+
 		} else {
 			if s.beginning_of_line {
 				// This is the first non-space character
@@ -375,7 +402,7 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 	{ // Skip to end of line. Only comments are allowed.
 		s.ts.skip(1)
 		str := s.ts.read_line().trim_space()
-		if str.len > 0 && str[0] != `#` {
+		if str.len > 0 && str[0] !in [`#`, `-`] {
 			return error("'|' and '>' must be followed by newline or a comment: '$str'")
 		}
 	}
