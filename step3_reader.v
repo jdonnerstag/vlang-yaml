@@ -7,7 +7,10 @@ import text_scanner as ts
 // array in the if-clause, e.g. if x is []YamlValue { assert x.len == 3 }
 // does not work!!! Putting them into a struct is a workaround.
 // type YamlValue = map[string]YamlValue | []YamlValue | string
-pub type YamlValue = YamlMapValue | YamlListValue | string | i64 | f64 | bool
+pub type YamlValue = YamlMapValue | YamlListValue | string | i64 | f64 | bool | Null
+
+pub struct Null {}
+pub const null = Null {}
 
 pub struct YamlListValue {
 pub mut:
@@ -78,6 +81,7 @@ fn (v YamlTokenValueType) to_yamlvalue() YamlValue {
 */
 	if v is string {
 		a := v
+		if a == 'null' {return null}
 		return YamlValue(a)
 	} else if v is i64 {
 		a := v
