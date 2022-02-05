@@ -39,12 +39,16 @@ fn optional_char_in(str string, pos int, bytes string) int {
 
 // regex.regex_opt("[+-]?[0-9]+")?
 fn p_is_int(str string) int {
+	if str[0] == `0` && str.len > 1 {return 0 } // TODO: parse `octal` & `hex`
 	mut pos := optional_char_in(str, 0, "+-")
 	return p_is_int_(str, pos)
 }
 
 // regex.regex_opt("[-+]?([0-9]*[.])?[0-9]+([eE][-+]?[0-9]+)?")?
 fn p_is_float(str string) int {
+	if str[0] == `0` && str.len > 1 && str[1] != `.` { // TODO: parse `octal` & `hex`
+		return 0
+	}
 	mut pos := optional_char_in(str, 0, "+-")
 
 	{
@@ -60,8 +64,10 @@ fn p_is_float(str string) int {
 	pos = p_is_int_(str, pos)
 
 	{
-		pos = optional_char_in(str, pos, "eE")
-		pos = optional_char_in(str, pos, "+-")
+		pos2 := optional_char_in(str, pos, "eE")
+		if pos != pos2 {
+			pos = optional_char_in(str, pos2, "+-")
+		}
 		pos = p_is_int_(str, pos)
 	}
 

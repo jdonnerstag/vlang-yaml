@@ -59,7 +59,7 @@ fn (mut json YamlJson) yaml_to_json_root(debug int) ?string {
 }
 
 fn (mut json YamlJson) yaml_to_json_list_parent(idx int, mut str strings.Builder, debug int) ?int {
-	str.write_b(`[`)
+	str.write_byte(`[`)
 	mut pos := idx
 	for pos < json.tokens.len {
 		tok := json.tokens[pos]
@@ -79,7 +79,7 @@ fn (mut json YamlJson) yaml_to_json_list_parent(idx int, mut str strings.Builder
 			str.write_string("\"*")
 			str.write_string(x[1 ..])
 		} else if tok.typ == YamlTokenKind.close {
-			str.write_b(`]`)
+			str.write_byte(`]`)
 			break
 		} else if tok.typ == YamlTokenKind.end_of_document {
 			break
@@ -96,7 +96,7 @@ fn (mut json YamlJson) yaml_to_json_list_parent(idx int, mut str strings.Builder
 }
 
 fn (mut json YamlJson) yaml_to_json_map_parent(idx int, mut str strings.Builder, debug int) ?int {
-	str.write_b(`{`)
+	str.write_byte(`{`)
 	mut pos := idx
 	for pos < json.tokens.len {
 		tok := json.tokens[pos]
@@ -112,7 +112,7 @@ fn (mut json YamlJson) yaml_to_json_map_parent(idx int, mut str strings.Builder,
 				str.write_string(x)
 				str.write_string(": ")
 			} else {
-				str.write_b(`"`)
+				str.write_byte(`"`)
 				str.write_string(x)
 				str.write_string("\": ")
 			}
@@ -123,7 +123,7 @@ fn (mut json YamlJson) yaml_to_json_map_parent(idx int, mut str strings.Builder,
 			str.write_string("\"*")
 			str.write_string(x[1 ..])
 		} else if tok.typ == YamlTokenKind.close {
-			str.write_b(`}`)
+			str.write_byte(`}`)
 			break
 		} else if tok.typ == YamlTokenKind.end_of_document {
 			break

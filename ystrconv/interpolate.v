@@ -66,35 +66,35 @@ pub fn interpolate_double_quoted_string(val string) ?string {
 		ch := val[pos]
 		if ch == `\\` && (pos + 1) < val.len {
 			x := val[pos + 1]
-			if x == `a` { str.write_b(0x07) }
-			else if x == `b` { str.write_b(0x08) }
-			else if x == `e` { str.write_b(0x1b) }
-			else if x == `f` { str.write_b(0x0c) }
-			else if x == `n` { str.write_b(0x0a) }
-			else if x == `r` { str.write_b(0x0d) }
-			else if x == `t` { str.write_b(0x09) }
-			else if x == `v` { str.write_b(0x0b) }
+			if x == `a` { str.write_byte(0x07) }
+			else if x == `b` { str.write_byte(0x08) }
+			else if x == `e` { str.write_byte(0x1b) }
+			else if x == `f` { str.write_byte(0x0c) }
+			else if x == `n` { str.write_byte(0x0a) }
+			else if x == `r` { str.write_byte(0x0d) }
+			else if x == `t` { str.write_byte(0x09) }
+			else if x == `v` { str.write_byte(0x0b) }
 			else if x == `x` { 
 				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 2, 2, 16)?).bytestr())
 				pos += 2
 			} else if x == `u` { 
 				cp := parse_number_fix_length(val, pos + 2, 4, 16)?
-				str.write_string(utf32_to_str(u32(cp)))
+				str.write_rune(rune(u32(cp)))
 				pos += 4
 			} else if x == `U` { 
 				cp := parse_number_fix_length(val, pos + 2, 8, 16)?
-				str.write_string(utf32_to_str(u32(cp)))
+				str.write_rune(rune(u32(cp)))
 				pos += 8
 			} else if x >= `0` && x < `8` { 
 				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 1, 3, 8)?).bytestr())
 				pos += 2
 			} else {
 				// Has no special meaning
-				str.write_b(val[pos + 1])
+				str.write_byte(val[pos + 1])
 			}
 			pos ++
 		} else {
-			str.write_b(val[pos])
+			str.write_byte(val[pos])
 		}
 		pos ++
 	}
@@ -114,20 +114,46 @@ pub fn interpolate_single_quoted_string(val string) string {
 // 0o12
 // 0b1100100
 pub fn interpolate_plain_value(str string) string {
+	$if test {
+		assert str.len > 1
+	}
 	mut base := 10
-	if str.starts_with("0x") {
-		base = 16
-	} else if str.starts_with("0o") {
-		base = 8
-	} else if str.starts_with("0b") {
-		base = 2
+	mut prefix_len := 0
+	if str[0] == `0` {
+		if str[1] == `x` && str.len > 2 {
+			base = 16
+			prefix_len = 2
+		} else if str[1] == `o` && str.len > 2 {
+			base = 8
+			prefix_len = 2
+		} else if str[1] == `b` && str.len > 2 {
+			base = 2
+			prefix_len = 2
+		} else {
+			$if yaml_1_1_octal ? {
+				if str.len > 1 {
+					for i in 1..str.len {
+						if str[i] < `0` || str[i] > `7` {
+							return str
+						}
+					}
+					base = 8
+					prefix_len = 1
+				} else {
+					return str
+				}
+			} $else {
+				return str
+			}
+		}
+
+		x := parse_number_variable_length(str, prefix_len, base) or {
+			return str
+		}
+
+		return x.str()
 	} else {
 		return str
 	}
 
-	x := parse_number_variable_length(str, 2, base) or {
-		return str
-	}
-
-	return x.str()
 }
