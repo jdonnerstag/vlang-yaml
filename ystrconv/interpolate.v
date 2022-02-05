@@ -114,20 +114,46 @@ pub fn interpolate_single_quoted_string(val string) string {
 // 0o12
 // 0b1100100
 pub fn interpolate_plain_value(str string) string {
+	$if test {
+		assert str.len > 1
+	}
 	mut base := 10
-	if str.starts_with("0x") {
-		base = 16
-	} else if str.starts_with("0o") {
-		base = 8
-	} else if str.starts_with("0b") {
-		base = 2
+	mut prefix_len := 0
+	if str[0] == `0` {
+		if str[1] == `x` && str.len > 2 {
+			base = 16
+			prefix_len = 2
+		} else if str[1] == `o` && str.len > 2 {
+			base = 8
+			prefix_len = 2
+		} else if str[1] == `b` && str.len > 2 {
+			base = 2
+			prefix_len = 2
+		} else {
+			$if yaml_1_1_octal ? {
+				if str.len > 1 {
+					for i in 1..str.len {
+						if str[i] < `0` || str[i] > `7` {
+							return str
+						}
+					}
+					base = 8
+					prefix_len = 1
+				} else {
+					return str
+				}
+			} $else {
+				return str
+			}
+		}
+
+		x := parse_number_variable_length(str, prefix_len, base) or {
+			return str
+		}
+
+		return x.str()
 	} else {
 		return str
 	}
 
-	x := parse_number_variable_length(str, 2, base) or {
-		return str
-	}
-
-	return x.str()
 }

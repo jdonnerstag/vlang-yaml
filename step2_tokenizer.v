@@ -132,18 +132,24 @@ fn cmp_lowercase(str1 string, str2 string) bool {
 // to_value_type Analyse the token string and convert it to the respective type.
 // Remove any optionally existing quotes for string types
 fn to_value_type(val string) ?YamlTokenValueType {
-	// Convert 0x.., 0o.. and 0b.. to decimal integers
-	str := ystrconv.interpolate_plain_value(val)
-
-	if ystrconv.is_int(str) {
-		return str.i64()
-	} else if ystrconv.is_float(str) {
-		return str.f64()
-	} else if cmp_lowercase(str, "true") || cmp_lowercase(str, "yes") {
-		return true
-	} else if cmp_lowercase(str, "false") || cmp_lowercase(str, "no") {
-		return false
+	str := if val.len > 1 {
+		// Convert 0x.., 0o.. and 0b.. to decimal integers
+		ystrconv.interpolate_plain_value(val)
+	} else {
+		val
 	}
+	if val.len > 0 {
+		if ystrconv.is_int(str) {
+			return str.i64()
+		} else if ystrconv.is_float(str) {
+			return str.f64()
+		} else if cmp_lowercase(str, "true") || cmp_lowercase(str, "yes") {
+			return true
+		} else if cmp_lowercase(str, "false") || cmp_lowercase(str, "no") {
+			return false
+		}
+	}
+
 	return YamlTokenValueType(remove_quotes(str)?)
 }
 

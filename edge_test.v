@@ -7,8 +7,10 @@ fn test_edge() ? {
 a: 444***111
 b: aiu [ true, false ] # comment
 c: 09123112 # comment
-octal: 02123112 # comment
-hex: 02123112 # comment
+octal_in_yaml1.1: 02123112 # comment
+octal: 0o2123112 # comment
+hex: 0x2123112 # comment
+byte: 0b101101
 d: 1-2 # comment
 ee:   [ true, false ]
 f:  null
@@ -28,7 +30,7 @@ time_inv: 25:30
 	x := docs.get(0)
 	assert x is YamlMapValue
 	if x is YamlMapValue {
-		assert x.obj.len == 17
+		assert x.obj.len == 19
 		//eprintln(x.ar)
 		// dump(x.obj['d'] ?)
 		// dump(x.obj['e'] ?)
@@ -43,7 +45,14 @@ time_inv: 25:30
 	assert x.get('b')?.string()? == "aiu [ true, false ]"
 	assert x.get('c')?.type_name() == "string"
 	assert x.get('c')?.string()? == "09123112"
-	// assert x.get('octal')?.i64()? == 566858
+	assert x.get('octal')?.i64()? == 566858
+	$if yaml_1_1_octal ? {
+		assert x.get('octal_')?.i64()? == 566858
+	} $else {
+		assert x.get('octal_in_yaml1.1')?.string()? == '02123112'
+	}
+	assert x.get('hex')?.i64()? == 34746642
+	assert x.get('byte')?.i64()? == 45
 	assert x.get('d')?.type_name() == "string"
 	assert x.get('d')?.string()? == "1-2"
 	assert x.get('inv_quote')?.string()? == 'invalid"'
