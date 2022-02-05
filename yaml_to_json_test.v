@@ -18,7 +18,7 @@ fn test_compare_with_json_files() ? {
 		if os.is_file(yf) == false { continue }
 		eprintln("read yaml: $yf")
 		content := os.read_file(yf)?
-		mut json := yaml_to_json(content, replace_tags: true, debug: debug)?
+		json := yaml_to_json(content, replace_tags: true, debug: debug)?
 
 		file_content := os.read_file("$test_data_dir/json/$f")?
 
