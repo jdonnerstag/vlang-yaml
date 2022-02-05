@@ -6,3 +6,7 @@ national:
   - New York Mets
   - Chicago Cubs
   - Atlanta Braves
+array:
+- 1
+- 2
+- 3

@@ -46,7 +46,7 @@ fn test_z_ex_03() ? {
 	x1 := docs.get(0)
 	assert x1 is YamlMapValue
 	if x1 is YamlMapValue {
-		assert x1.obj.len == 2
+		assert x1.obj.len == 3
 		x2 := x1.obj["american"]?
 		assert x2 is YamlListValue
 		if x2 is YamlListValue {
@@ -62,6 +62,14 @@ fn test_z_ex_03() ? {
 			assert x3.ar[0] == YamlValue("New York Mets")
 			assert x3.ar[1] == YamlValue("Chicago Cubs")
 			assert x3.ar[2] == YamlValue("Atlanta Braves")
+		}
+		x4 := x1.obj["array"]?
+		assert x4 is YamlListValue
+		if x4 is YamlListValue {
+			assert x4.ar.len == 3
+			assert x4.ar[0] == YamlValue(i64(1))
+			assert x4.ar[1] == YamlValue(i64(2))
+			assert x4.ar[2] == YamlValue(i64(3))
 		}
 	}
 }
