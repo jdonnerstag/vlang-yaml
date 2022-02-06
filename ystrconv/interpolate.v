@@ -66,14 +66,14 @@ pub fn interpolate_double_quoted_string(val string) ?string {
 		ch := val[pos]
 		if ch == `\\` && (pos + 1) < val.len {
 			x := val[pos + 1]
-			if x == `a` { str.write_b(0x07) }
-			else if x == `b` { str.write_b(0x08) }
-			else if x == `e` { str.write_b(0x1b) }
-			else if x == `f` { str.write_b(0x0c) }
-			else if x == `n` { str.write_b(0x0a) }
-			else if x == `r` { str.write_b(0x0d) }
-			else if x == `t` { str.write_b(0x09) }
-			else if x == `v` { str.write_b(0x0b) }
+			if x == `a` { str.write_byte(0x07) }
+			else if x == `b` { str.write_byte(0x08) }
+			else if x == `e` { str.write_byte(0x1b) }
+			else if x == `f` { str.write_byte(0x0c) }
+			else if x == `n` { str.write_byte(0x0a) }
+			else if x == `r` { str.write_byte(0x0d) }
+			else if x == `t` { str.write_byte(0x09) }
+			else if x == `v` { str.write_byte(0x0b) }
 			else if x == `x` {
 				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 2, 2, 16)?).bytestr())
 				pos += 2
@@ -90,11 +90,11 @@ pub fn interpolate_double_quoted_string(val string) ?string {
 				pos += 2
 			} else {
 				// Has no special meaning
-				str.write_b(val[pos + 1])
+				str.write_byte(val[pos + 1])
 			}
 			pos ++
 		} else {
-			str.write_b(val[pos])
+			str.write_byte(val[pos])
 		}
 		pos ++
 	}
