@@ -48,7 +48,9 @@ fn test_z_ex_02() ? {
 	assert x.get('hr') ?.int() ? == 65
 
 	assert x.get('avg') ?.f64() ? == 0.278
-	assert x.get('rbi') ?.u32() ? == u32(147)
+	assert x.get('rbi') ?.u32() ? == 147
+	assert x.get('rbi') ?.u16() ? == 147
+	assert x.get('rbi') ?.u8() ? == 147
 }
 
 fn test_z_ex_03() ? {

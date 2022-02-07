@@ -120,7 +120,10 @@ pub fn (this YamlValue) i64() ?i64 {
 	panic('Unable to determine i64 value: $this')
 }
 
-// pub fn (this YamlValue) u8()  ?u8  { return this.string()?.u8() }
+pub fn (this YamlValue) u8() ?u8 {
+	return byte(this.i64() ?)
+}
+
 pub fn (this YamlValue) u16() ?u16 {
 	return u16(this.i64() ?)
 }
