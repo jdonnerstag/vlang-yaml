@@ -5,40 +5,40 @@ import text_scanner as ts
 struct Scanner {
 pub mut:
 	// TODO: There is a separate branch for embedded struct. Due to a V-bug, it can not be used right now.
-	ts ts.TextScanner	// A somewhat generic text scanner
-	beginning_of_line bool = true	// True if we are *logically* at the beginning of a line
-	tokens []Token		// YAML Tokens collected   TODO Keep for now, but remove ones next() is in place
-	indent_level []int = [1]	 // A stack of relevant indent levels
-	debug int 			// The larger, the more debug messages. 4 and 9 are reasonable values.
-	token_buffer []Token
-	block_levels []byte	// Open block levels '{' or '['
+	ts                ts.TextScanner // A somewhat generic text scanner
+	beginning_of_line bool = true // True if we are *logically* at the beginning of a line
+	tokens            []Token // YAML Tokens collected   TODO Keep for now, but remove ones next() is in place
+	indent_level      []int = [1] // A stack of relevant indent levels
+	debug             int     // The larger, the more debug messages. 4 and 9 are reasonable values.
+	token_buffer      []Token
+	block_levels      []byte // Open block levels '{' or '['
 }
 
 pub enum TokenKind {
-	lcbr			// `{`
-	rcbr			// `}`
-	labr			// `[`
-	rabr			// `]`
-	comma			// `,`
-	colon			// `:`
-	hyphen			// `-`
-	question_mark	// `?`
-	pipe			// `|`
-	greater			// `>`
-	newline			// `\r`, `\n`
-	document		// `---`
-	end_of_document	// `...`
-	xstr			// anything else
-	tag_url			// Text starting with '!'
-	tag_def			// Text starting with '&'
-	tag_ref	   		// Text starting with '*'
-	tag_directive	// %TAG
+	lcbr // `{`
+	rcbr // `}`
+	labr // `[`
+	rabr // `]`
+	comma // `,`
+	colon // `:`
+	hyphen // `-`
+	question_mark // `?`
+	pipe // `|`
+	greater // `>`
+	newline // `\r`, `\n`
+	document // `---`
+	end_of_document // `...`
+	xstr // anything else
+	tag_url // Text starting with '!'
+	tag_def // Text starting with '&'
+	tag_ref // Text starting with '*'
+	tag_directive // %TAG
 }
 
 pub struct Token {
-	typ TokenKind		// Token type
-	column int			// Token indent level
-	val string			// Token string value
+	typ    TokenKind // Token type
+	column int       // Token indent level
+	val    string    // Token string value
 }
 
 struct ScannerIter {
@@ -53,7 +53,9 @@ pub fn (mut iter ScannerIter) next() ?Token {
 
 [inline]
 pub fn (s Scanner) scan() ScannerIter {
-	return ScannerIter{ s: s }
+	return ScannerIter{
+		s: s
+	}
 }
 
 // This is basically a file reader and tokenizer. It's key properties are:
@@ -64,9 +66,11 @@ pub fn (s Scanner) scan() ScannerIter {
 // - Indentation plays a major role in YAML. Every token provide the indentation
 //   level (== column)
 pub fn yaml_scanner(content string, debug int) ?Scanner {
-	if debug > 2 { eprintln("content: \n'$content'") }
+	if debug > 2 {
+		eprintln("content: \n'$content'")
+	}
 
-	mut scanner := new_scanner(content, debug)?
+	mut scanner := new_scanner(content, debug) ?
 
 	// TODO Remove ones streaming properly works
 	for tok in scanner.scan() {
@@ -76,8 +80,11 @@ pub fn yaml_scanner(content string, debug int) ?Scanner {
 }
 
 pub fn new_scanner(data string, debug int) ?Scanner {
-	text_scanner := ts.new_scanner(data)?
-	return Scanner{ ts: text_scanner, debug: debug }
+	text_scanner := ts.new_scanner(data) ?
+	return Scanner{
+		ts: text_scanner
+		debug: debug
+	}
 }
 
 [inline]
@@ -87,7 +94,11 @@ pub fn (s Scanner) len() int {
 
 // TODO rename fn. It no longer adds a token to something
 fn (mut s Scanner) add_token(t_type TokenKind, val string) Token {
-	tok := Token{ typ: t_type, column: s.indent_level.last(), val: val }
+	tok := Token{
+		typ: t_type
+		column: s.indent_level.last()
+		val: val
+	}
 	if s.debug > 7 {
 		eprintln("new token: line-no: $s.ts.line_no, $s.indent_level, $t_type, '$val'")
 	}
@@ -95,7 +106,7 @@ fn (mut s Scanner) add_token(t_type TokenKind, val string) Token {
 }
 
 fn (mut s Scanner) tokenize(t_type TokenKind, from int, to int) ?Token {
-	x := if from >= s.ts.len() { "" } else { s.ts.text[from .. to].trim_space() }
+	x := if from >= s.ts.len() { '' } else { s.ts.text[from..to].trim_space() }
 	if t_type != .xstr || x.len > 0 {
 		return s.add_token(t_type, x)
 	}
@@ -149,13 +160,13 @@ fn (mut s Scanner) new_indent_level_for_list(pos int) {
 	}
 
 	// Remove all indent levels, until 'column'
-	col := pos - s.ts.column_pos + 2	// Column
+	col := pos - s.ts.column_pos + 2 // Column
 	for (s.indent_level.len > 1) && (s.indent_level.last() >= col) {
 		s.indent_level.pop()
 	}
 
 	// Add an indent level, if new level is greater then the latest one
-	if s.indent_level.last() < col{
+	if s.indent_level.last() < col {
 		s.indent_level << col
 	}
 }
@@ -170,7 +181,7 @@ fn (mut s Scanner) new_indent_level(pos int) {
 	}
 
 	// Remove all indent levels, until 'column'
-	col := pos - s.ts.column_pos + 1	// Column
+	col := pos - s.ts.column_pos + 1 // Column
 	for (s.indent_level.len > 1) && (s.indent_level.last() > col) {
 		s.indent_level.pop()
 	}
@@ -190,7 +201,7 @@ fn (mut s Scanner) on_newline() Token {
 
 	// Nothing found to catch up
 	s.newline()
-	return s.add_token(.newline, "")
+	return s.add_token(.newline, '')
 }
 
 [inline]
@@ -216,7 +227,8 @@ fn (mut s Scanner) next_token() ?Token {
 	for !s.ts.is_eof() {
 		c := s.ts.at_pos()
 		if s.debug > 8 {
-			eprintln("YAML: lineno: $s.ts.line_no, pos: $s.ts.pos, bol: ${s.beginning_of_line}, indent: ${s.indent_level.last()} (${s.indent_level.len}), str='${s.ts.substr_escaped(s.ts.pos, 20)}'")
+			eprintln("YAML: lineno: $s.ts.line_no, pos: $s.ts.pos, bol: $s.beginning_of_line, indent: $s.indent_level.last() ($s.indent_level.len), str='${s.ts.substr_escaped(s.ts.pos,
+				20)}'")
 		}
 
 		// Some additional tokens/chars are considered only at the beginning of a line.
@@ -228,50 +240,51 @@ fn (mut s Scanner) next_token() ?Token {
 				s.ts.skip(1)
 				continue
 			} else if c == `\t` {
-				return error("Tabs are not allowed for indentation. You must use spaces: '${s.ts.substr_escaped(s.ts.pos - 10, 20)}'")
-			} else if c in [`-`, `?`] && s.ts.is_followed_by_space_or_eol() {		// list or set
+				return error("Tabs are not allowed for indentation. You must use spaces: '${s.ts.substr_escaped(s.ts.pos - 10,
+					20)}'")
+			} else if c in [`-`, `?`] && s.ts.is_followed_by_space_or_eol() { // list or set
 				s.new_indent_level_for_list(s.ts.pos)
-				tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1)?
-				s.ts.skip(1)	// The next is optionally a space. It could as well be a newline
+				tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1) ?
+				s.ts.skip(1) // The next is optionally a space. It could as well be a newline
 				return tok
-			} else if s.ts.is_followed_by_word("---") {	// beginning of document
-				tok := s.tokenize(.document, s.ts.pos, s.ts.pos + 3)?
+			} else if s.ts.is_followed_by_word('---') { // beginning of document
+				tok := s.tokenize(.document, s.ts.pos, s.ts.pos + 3) ?
 				s.ts.skip(3)
-				s.new_indent_level(-1)	// close any open indent level
+				s.new_indent_level(-1) // close any open indent level
 				return tok
-			} else if s.ts.is_followed_by_word("...") {	// end of document
-				tok := s.tokenize(.end_of_document, s.ts.pos, s.ts.pos + 3)?
+			} else if s.ts.is_followed_by_word('...') { // end of document
+				tok := s.tokenize(.end_of_document, s.ts.pos, s.ts.pos + 3) ?
 				s.ts.skip(3)
-				s.new_indent_level(-1)	// close any open indent level
+				s.new_indent_level(-1) // close any open indent level
 				return tok
-			} else if s.ts.is_followed_by_word("%TAG") {	// TAG directive
+			} else if s.ts.is_followed_by_word('%TAG') { // TAG directive
 				str := s.ts.read_line()
 				return s.add_token(.tag_directive, str)
 			}
 		}
 
-		if c in [`"`, `'`] {	// quoted strings
+		if c in [`"`, `'`] { // quoted strings
 			if s.ts.check_text().trim_space().len > 0 {
 				s.ts.move(1)
 				continue
 			}
 			return s.quoted_string_scanner()
-		} else if c in [`>`, `|`] {		// (multi-line) flow text
+		} else if c in [`>`, `|`] { // (multi-line) flow text
 			if s.ts.check_text().trim_space().len > 0 {
 				s.ts.move(1)
 				continue
 			}
 			return s.flow_string_scanner()
-		} else if c == `#` {	// Comment
+		} else if c == `#` { // Comment
 			if tok := s.catch_up() {
 				return tok
 			}
 			s.ts.skip_to_eol()
-		} else if (c == `:`) && s.ts.is_followed_by_space_or_eol() {	// key value separator: key: value
+		} else if (c == `:`) && s.ts.is_followed_by_space_or_eol() { // key value separator: key: value
 			if tok := s.catch_up() {
 				return tok
 			}
-			tok := s.tokenize(.colon, s.ts.pos, s.ts.pos + 1)?
+			tok := s.tokenize(.colon, s.ts.pos, s.ts.pos + 1) ?
 			s.ts.skip(1)
 			return tok
 		} else if ts.is_newline(c) {
@@ -282,7 +295,7 @@ fn (mut s Scanner) next_token() ?Token {
 				continue
 			}
 			return s.open_block(c)
-		} else if c in [`!`, `&`, `*`] {	// Tag related
+		} else if c in [`!`, `&`, `*`] { // Tag related
 			str0 := s.ts.check_text().trim_space()
 			if str0.len > 0 {
 				text := s.ts.read_line().trim_space()
@@ -291,19 +304,18 @@ fn (mut s Scanner) next_token() ?Token {
 			}
 
 			typ := s.to_token_kind(c)
-			s.ts.skip(1)		// Skip the leading char '!', '&', '*'
+			s.ts.skip(1) // Skip the leading char '!', '&', '*'
 			s.ts.move_to_end_of_word()
 			str := s.ts.get_text()
 			tok := s.add_token(typ, str)
 			return tok
-		} else if c in [`~`] { // null
+		} else if c == `~` { // null
 			str0 := s.ts.check_text()
 			if str0.len > 1 {
 				text := s.ts.read_line().trim_space()
 				tok := s.add_token(.xstr, text)
 				return tok
 			}
-
 		} else {
 			if s.beginning_of_line {
 				// This is the first non-space character
@@ -327,7 +339,7 @@ fn (mut s Scanner) next_token() ?Token {
 
 fn (mut s Scanner) open_block(c byte) ?Token {
 	mut typ := s.to_token_kind(c)
-	tok := s.tokenize(typ, s.ts.pos, s.ts.pos + 1)?
+	tok := s.tokenize(typ, s.ts.pos, s.ts.pos + 1) ?
 
 	s.block_levels << c
 	s.ts.skip(1)
@@ -337,21 +349,25 @@ fn (mut s Scanner) open_block(c byte) ?Token {
 
 // block_scanner Scan the '{..}'' and '[..]' sections
 fn (mut s Scanner) block_scanner() ?Token {
-	start_ch := s.block_levels.last()	// The opening quote char
+	start_ch := s.block_levels.last() // The opening quote char
 
 	for !s.ts.is_eof() {
 		c := s.ts.at_pos()
 		if c in [`{`, `[`] {
 			return s.open_block(c)
 		} else if c in [`}`, `]`] {
-			if start_ch == `[` && c != `]` { return error("Bracket mismatch: $start_ch .. $c") }
-			if start_ch == `{` && c != `}` { return error("Bracket mismatch: $start_ch .. $c") }
+			if start_ch == `[` && c != `]` {
+				return error('Bracket mismatch: $start_ch .. $c')
+			}
+			if start_ch == `{` && c != `}` {
+				return error('Bracket mismatch: $start_ch .. $c')
+			}
 			if tok := s.catch_up() {
 				return tok
 			}
 			s.block_levels.pop()
-			tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1)?
-			s.ts.skip(1)	// Position the pointer right after the closing bracket.
+			tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1) ?
+			s.ts.skip(1) // Position the pointer right after the closing bracket.
 			return tok
 		} else if ts.is_newline(c) {
 			if tok := s.catch_up() {
@@ -362,7 +378,7 @@ fn (mut s Scanner) block_scanner() ?Token {
 			if tok := s.catch_up() {
 				return tok
 			}
-			tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1)?
+			tok := s.tokenize(s.to_token_kind(c), s.ts.pos, s.ts.pos + 1) ?
 			s.ts.skip(1)
 			return tok
 		} else if c in [`"`, `'`] {
@@ -385,7 +401,7 @@ fn (mut s Scanner) quoted_string_scanner() ?Token {
 		return start_ch == `'` && str.starts_with("''")
 	}
 
-	mut str := s.ts.quoted_string_scanner(yaml_quoted_escapes)?
+	mut str := s.ts.quoted_string_scanner(yaml_quoted_escapes) ?
 	str = ts.replace_nl_space(str)
 	return s.add_token(.xstr, str)
 }
@@ -406,10 +422,9 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 			return error("'|' and '>' must be followed by newline or a comment: '$str'")
 		}
 	}
-
-	mut text := ""
+	mut text := ''
 	mut indent := 0
-	mut nl := if t_type == TokenKind.greater { " " } else { "\n" }
+	mut nl := if t_type == TokenKind.greater { ' ' } else { '\n' }
 	mut start_pos := 0
 
 	for !s.ts.is_eof() {
@@ -420,7 +435,8 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 		is_empty := str.trim_space().len == 0
 
 		if text.len == 0 && is_empty == true {
-			return error("First line of multi-line text must not be empty: '${s.ts.substr_escaped(s.ts.pos - 10, 20)}'")
+			return error("First line of multi-line text must not be empty: '${s.ts.substr_escaped(s.ts.pos - 10,
+				20)}'")
 		}
 
 		x := ts.leading_spaces(str)
@@ -429,18 +445,18 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 		}
 
 		// eprintln("is_empty: $is_empty, indent: $indent, x: $x, str: '$str'")
-		lstr := if str.len >= indent { str[indent ..] } else { "" }
+		lstr := if str.len >= indent { str[indent..] } else { '' }
 		if text.len == 0 {
 			text = lstr
 		} else if is_empty == true {
-			text += "\n" + lstr
-			nl = "\n"
+			text += '\n' + lstr
+			nl = '\n'
 		} else if indent > 0 && x >= indent {
 			text += nl + lstr
 			if lstr.len == 0 || lstr[0].is_space() {
-				nl = "\n"
+				nl = '\n'
 			} else {
-				nl = if t_type == TokenKind.greater { " " } else { "\n" }
+				nl = if t_type == TokenKind.greater { ' ' } else { '\n' }
 			}
 		} else {
 			break
@@ -466,7 +482,7 @@ fn (mut s Scanner) flow_string_scanner() ?Token {
 fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 	mut text := tok.val
 	mut indent := tok.column - 1
-	mut nl := " "
+	mut nl := ' '
 
 	for !s.ts.is_eof() {
 		// Remember the current position if the line is not
@@ -478,27 +494,23 @@ fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 
 		trimmed := str.trim_space()
 		empty := trimmed.len == 0
-		x := ts.leading_spaces(str)	// The indent level of the current line
+		x := ts.leading_spaces(str) // The indent level of the current line
 
 		// See YAML spec: Empty lines or leading spaces, will trigger newline
 		if empty == true {
-			text += "\n"
-			nl = ""
+			text += '\n'
+			nl = ''
 			continue
 		} else {
 			text += nl
-			nl = " "
+			nl = ' '
 		}
 
 		// eprintln("plain: x: $x, indent: $indent, str: '${ts.str_escaped(str)}'")
-		if x == 0 || x < indent ||
-			str.contains_any_substr(["- ", ": ", " #"]) ||
-			str.ends_with("-") ||
-			str.ends_with(":") ||
-			str.starts_with("#") {
-
+		if x == 0 || x < indent || str.contains_any_substr(['- ', ': ', ' #']) || str.ends_with('-')
+			|| str.ends_with(':') || str.starts_with('#') {
 			s.ts.pos = start_pos
-			s.ts.line_no --
+			s.ts.line_no--
 			s.ts.skip(0)
 			break
 		} else {
@@ -508,5 +520,8 @@ fn (mut s Scanner) plain_multi_line_scanner(pos int, tok Token) Token {
 
 	// See YAML spec for plain text: leading and trailing spaces are trimmed.
 	text = text.trim_space()
-	return Token{ ...tok, val: text }
+	return Token{
+		...tok
+		val: text
+	}
 }

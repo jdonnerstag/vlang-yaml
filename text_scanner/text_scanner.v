@@ -2,34 +2,36 @@ module text_scanner
 
 // text_scanner No matter whether you want to read CSV, JSON, YAML, etc.
 // you often need a basic text scanner that tokenizes the text.
-
 import os
 
 struct TextScanner {
 pub:
-	text string			// The full yaml document
-	newline string		// The auto-detected newline
-	encoding Encodings	// Currently only utf-8 is supported
-
+	text     string    // The full yaml document
+	newline  string    // The auto-detected newline
+	encoding Encodings // Currently only utf-8 is supported
 pub mut:
-	pos int				// The current scanner position within the file
-	last_pos int		// The starting position of the current token
-	line_no int	= 1		// The current line number
-	column_pos int		// Start-of-line position
+	pos        int // The current scanner position within the file
+	last_pos   int // The starting position of the current token
+	line_no    int = 1 // The current line number
+	column_pos int // Start-of-line position
 }
 
 pub fn read_file(fpath string, debug int) ?TextScanner {
-	if debug > 2 { eprintln("YAML file: $fpath") }
+	if debug > 2 {
+		eprintln('YAML file: $fpath')
+	}
 
-	content := os.read_file(fpath)?
-	if debug > 2 { eprintln("content: \n'$content'") }
+	content := os.read_file(fpath) ?
+	if debug > 2 {
+		eprintln("content: \n'$content'")
+	}
 
 	return new_scanner(content)
 }
 
 pub fn new_scanner(data string) ?TextScanner {
 	if data.len == 0 {
-		return error("No YAML content. Data are empty.")
+		return error('No YAML content. Data are empty.')
 	}
 
 	enc := detect_bom(data) or { Encodings.utf_8 }
@@ -38,12 +40,12 @@ pub fn new_scanner(data string) ?TextScanner {
 		return error("Currently the YAML reader only supports 'UTF-8'")
 	}
 
-	newline := detect_newline(data) or { "\n" }
+	newline := detect_newline(data) or { '\n' }
 
 	return TextScanner{
-		pos: 0,
-		text: data,
-		encoding: enc,
+		pos: 0
+		text: data
+		encoding: enc
 		newline: newline
 	}
 }
@@ -85,7 +87,7 @@ pub fn detect_newline(str string) ?string {
 		if is_newline(c) {
 			// CR LF (Windows), LF (Unix) and CR (Macintosh)
 			len := if c == `\r` && (i + 1) < str.len && str[i + 1] == `\n` { 2 } else { 1 }
-			return str[i .. (i + len)]
+			return str[i..(i + len)]
 		}
 	}
 
@@ -95,7 +97,7 @@ pub fn detect_newline(str string) ?string {
 pub fn (mut s TextScanner) on_newline() {
 	s.skip(s.newline.len)
 
-	s.line_no ++
+	s.line_no++
 	s.column_pos = s.pos
 }
 
@@ -120,7 +122,7 @@ pub fn (mut s TextScanner) move_to_eol() {
 		if is_newline(c) {
 			return
 		}
-		s.pos ++
+		s.pos++
 	}
 }
 
@@ -139,7 +141,7 @@ pub fn (mut s TextScanner) skip_whitespace() {
 			s.last_pos = s.pos
 			return
 		}
-		s.pos ++
+		s.pos++
 	}
 }
 
@@ -152,19 +154,19 @@ pub fn (mut s TextScanner) move_to_end_of_word() int {
 		if c.is_space() || is_newline(c) {
 			break
 		}
-		s.pos ++
+		s.pos++
 	}
 	return s.pos
 }
 
 pub fn (mut s TextScanner) check_text() string {
-	return s.text[s.last_pos .. s.pos]
+	return s.text[s.last_pos..s.pos]
 }
 
 // get_text Retrieve the text from start_pos to the current position.
 // Update last_pos (mark the text as being read)
 pub fn (mut s TextScanner) get_text() string {
-	str := s.text[s.last_pos .. s.pos]
+	str := s.text[s.last_pos..s.pos]
 	s.last_pos = s.pos
 	return str
 }
@@ -172,32 +174,38 @@ pub fn (mut s TextScanner) get_text() string {
 pub fn (mut s TextScanner) at_str(len int) string {
 	to := s.pos + len
 	if to < s.text.len {
-		return s.text[s.pos .. s.pos + len]
+		return s.text[s.pos..s.pos + len]
 	}
-	return s.text[s.pos ..]
+	return s.text[s.pos..]
 }
 
 // is_followed_by_space_or_eol Return true, if the current char is
 // followed by either a space or newline, or eof.
 pub fn (s TextScanner) is_followed_by_space_or_eol() bool {
 	pos := s.pos + 1
-	if pos >= s.text.len { return true }
+	if pos >= s.text.len {
+		return true
+	}
 	return s.text[pos] in [` `, `\r`, `\n`]
 }
 
 // is_followed_by Return true, if the current char is followed by char.
 pub fn (s TextScanner) is_followed_by(c byte) bool {
 	pos := s.pos + 1
-	if pos >= s.text.len { return false }
+	if pos >= s.text.len {
+		return false
+	}
 	return s.text[pos] == c
 }
 
 // is_followed_by_word Return true if text at position starts with word,
 // and is followed by either space, newline or eof.
 pub fn (s TextScanner) is_followed_by_word(str string) bool {
-	if s.text[s.pos ..].starts_with(str) {
+	if s.text[s.pos..].starts_with(str) {
 		pos := s.pos + str.len
-		if pos >= s.text.len { return true }
+		if pos >= s.text.len {
+			return true
+		}
 		return s.text[pos] in [` `, `\r`, `\n`]
 	}
 	return false
@@ -214,9 +222,13 @@ pub fn (mut s TextScanner) read_line() string {
 // It properly considers lower and upper bound indices.
 pub fn (s TextScanner) substr(pos int, len int) string {
 	p := if pos < 0 { 0 } else { pos }
-	if p >= s.text.len || len <= 0 { return "" }
-	if (p + len) >= s.text.len { return s.text[p ..] }
-	return s.text[p .. (p + len)] + "..."
+	if p >= s.text.len || len <= 0 {
+		return ''
+	}
+	if (p + len) >= s.text.len {
+		return s.text[p..]
+	}
+	return s.text[p..(p + len)] + '...'
 }
 
 // substr_escaped For printing escape special chars such CR and LF
@@ -228,20 +240,20 @@ pub fn (s TextScanner) substr_escaped(pos int, len int) string {
 // str_escaped For printing escape special chars such CR and LF
 pub fn str_escaped(x string) string {
 	mut str := x
-	str = str.replace("\n", "\\n")
-	str = str.replace("\r", "\\r")
+	str = str.replace('\n', '\\n')
+	str = str.replace('\r', '\\r')
 	return str
 }
 
 // replace_nl_space Replace re"[\s\r\n]+" with " "
 pub fn replace_nl_space(str string) string {
-	mut rtn := []byte{ cap: str.len + 1 }
+	mut rtn := []byte{cap: str.len + 1}
 	mut count := 0
 	for c in str {
-		if c in [ ` `, `\n`, `\r`] {
+		if c in [` `, `\n`, `\r`] {
 			if count == 0 {
 				rtn << ` `
-				count ++
+				count++
 			}
 		} else {
 			rtn << c
@@ -260,14 +272,14 @@ pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch byte, str strin
 	s.skip(1)
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
-		if op(start_ch, s.text[s.pos ..]) {
+		if op(start_ch, s.text[s.pos..]) {
 			s.move(2)
 		} else if c == `\\` { // `"\"str"`
 			s.move(2)
 		} else if c == start_ch {
 			s.skip(1)
 			s.last_pos = start_pos
-			return s.get_text()		// We deliberately keep the quotes
+			return s.get_text() // We deliberately keep the quotes
 		} else if is_newline(c) {
 			s.on_newline()
 		} else {
@@ -275,7 +287,8 @@ pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch byte, str strin
 		}
 	}
 
-	return error("Closing quote `${start_ch.ascii_str()}` missing. Starting at line $line_no: '${s.substr_escaped(s.pos - 10, 20)}'")
+	return error("Closing quote `$start_ch.ascii_str()` missing. Starting at line $line_no: '${s.substr_escaped(s.pos - 10,
+		20)}'")
 }
 
 // leading_spaces Determine the number of leading spaces (indentation)

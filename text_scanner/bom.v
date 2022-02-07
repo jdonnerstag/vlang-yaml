@@ -15,7 +15,7 @@ pub fn detect_bom(str string) ?Encodings {
 		return .utf_32be
 	} else if str.starts_with([byte(0xff), 0xfe, 0x00, 0x00].bytestr()) {
 		return .utf_32le
-	} else if str[1 ..].starts_with([byte(0x00), 0x00, 0x00].bytestr()) {
+	} else if str[1..].starts_with([byte(0x00), 0x00, 0x00].bytestr()) {
 		return .utf_32le
 	} else if str.starts_with([byte(0xfe), 0xff].bytestr()) {
 		return .utf_16be
@@ -23,7 +23,7 @@ pub fn detect_bom(str string) ?Encodings {
 		return .utf_16be
 	} else if str.starts_with([byte(0xff), 0xfe].bytestr()) {
 		return .utf_16le
-	} else if str[1 ..].starts_with([byte(0x00)].bytestr()) {
+	} else if str[1..].starts_with([byte(0x00)].bytestr()) {
 		return .utf_16le
 	} else if str.starts_with([byte(0xef), 0xbb, 0xbf].bytestr()) {
 		return .utf_8

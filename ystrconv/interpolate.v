@@ -5,7 +5,7 @@ import strings
 
 pub fn char_to_base(ch byte, base int) ?int {
 	mut i := int(ch)
-	if ch >= `0` && ch < (`0`+ math.min(base, 10)) {
+	if ch >= `0` && ch < (`0` + math.min(base, 10)) {
 		i = i - int(`0`)
 	} else if ch >= `A` && ch < (`A` + base - 10) {
 		i = i - int(`A`) + 10
@@ -22,33 +22,39 @@ pub fn parse_number_fix_length(str string, pos int, len int, base int) ?i64 {
 		mut rtn := i64(0)
 		for i in pos .. (pos + len) {
 			ch := str[i]
-			x := char_to_base(ch, base)?
+			x := char_to_base(ch, base) ?
 			rtn = (rtn * i64(base)) + i64(x)
 		}
 		return rtn
 	}
-	return error("Invalid length. Expected $len more chars: '${str[pos ..]}'")
+	return error("Invalid length. Expected $len more chars: '${str[pos..]}'")
 }
 
 pub fn parse_number_variable_length(str string, pos int, base int) ?i64 {
 	mut rtn := i64(0)
-	for ch in str[pos .. ] {
-		x := char_to_base(ch, base)?
+	for ch in str[pos..] {
+		x := char_to_base(ch, base) ?
 		rtn = (rtn * i64(base)) + i64(x)
 	}
 	return rtn
 }
 
 pub fn int_to_bytes(i i64) []byte {
-	if i < 0x0100 { return [byte(i)] }
+	if i < 0x0100 {
+		return [byte(i)]
+	}
 
 	a := byte((i >> 0) & 0xff)
 	b := byte((i >> 8) & 0xff)
-	if i < 0x1_0000 { return [b, a] }
+	if i < 0x1_0000 {
+		return [b, a]
+	}
 
 	c := byte((i >> 16) & 0xff)
 	d := byte((i >> 24) & 0xff)
-	if i < 0x1_0000_0000 { return [d, c, b, a] }
+	if i < 0x1_0000_0000 {
+		return [d, c, b, a]
+	}
 
 	e := byte((i >> 32) & 0xff)
 	f := byte((i >> 40) & 0xff)
@@ -58,7 +64,9 @@ pub fn int_to_bytes(i i64) []byte {
 }
 
 pub fn interpolate_double_quoted_string(val string) ?string {
-	if val.contains("\\") == false { return val }
+	if val.contains('\\') == false {
+		return val
+	}
 
 	mut str := strings.new_builder(val.len)
 	mut pos := 0
@@ -75,28 +83,30 @@ pub fn interpolate_double_quoted_string(val string) ?string {
 			else if x == `t` { str.write_byte(0x09) }
 			else if x == `v` { str.write_byte(0x0b) }
 			else if x == `x` {
-				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 2, 2, 16)?).bytestr())
+				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 2, 2,
+					16) ?).bytestr())
 				pos += 2
 			} else if x == `u` {
-				cp := parse_number_fix_length(val, pos + 2, 4, 16)?
+				cp := parse_number_fix_length(val, pos + 2, 4, 16) ?
 				str.write_rune(rune(u32(cp)))
 				pos += 4
 			} else if x == `U` {
-				cp := parse_number_fix_length(val, pos + 2, 8, 16)?
+				cp := parse_number_fix_length(val, pos + 2, 8, 16) ?
 				str.write_rune(rune(u32(cp)))
 				pos += 8
 			} else if x >= `0` && x < `8` {
-				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 1, 3, 8)?).bytestr())
+				str.write_string(int_to_bytes(parse_number_fix_length(val, pos + 1, 3,
+					8) ?).bytestr())
 				pos += 2
 			} else {
 				// Has no special meaning
 				str.write_byte(val[pos + 1])
 			}
-			pos ++
+			pos++
 		} else {
 			str.write_byte(val[pos])
 		}
-		pos ++
+		pos++
 	}
 
 	return str.str()
@@ -132,7 +142,7 @@ pub fn interpolate_plain_value(str string) string {
 		} else {
 			$if yaml_1_1_octal ? {
 				if str.len > 1 {
-					for i in 1..str.len {
+					for i in 1 .. str.len {
 						if str[i] < `0` || str[i] > `7` {
 							return str
 						}
@@ -147,13 +157,10 @@ pub fn interpolate_plain_value(str string) string {
 			}
 		}
 
-		x := parse_number_variable_length(str, prefix_len, base) or {
-			return str
-		}
+		x := parse_number_variable_length(str, prefix_len, base) or { return str }
 
 		return x.str()
 	} else {
 		return str
 	}
-
 }
