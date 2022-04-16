@@ -121,7 +121,7 @@ pub fn (this YamlValue) i64() ?i64 {
 }
 
 pub fn (this YamlValue) u8() ?u8 {
-	return byte(this.i64() ?)
+	return u8(this.i64() ?)
 }
 
 pub fn (this YamlValue) u16() ?u16 {

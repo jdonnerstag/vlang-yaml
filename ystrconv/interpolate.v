@@ -3,7 +3,7 @@ module ystrconv
 import math
 import strings
 
-pub fn char_to_base(ch byte, base int) ?int {
+pub fn char_to_base(ch u8, base int) ?int {
 	mut i := int(ch)
 	if ch >= `0` && ch < (`0` + math.min(base, 10)) {
 		i = i - int(`0`)
@@ -39,27 +39,27 @@ pub fn parse_number_variable_length(str string, pos int, base int) ?i64 {
 	return rtn
 }
 
-pub fn int_to_bytes(i i64) []byte {
+pub fn int_to_bytes(i i64) []u8 {
 	if i < 0x0100 {
-		return [byte(i)]
+		return [u8(i)]
 	}
 
-	a := byte((i >> 0) & 0xff)
-	b := byte((i >> 8) & 0xff)
+	a := u8((i >> 0) & 0xff)
+	b := u8((i >> 8) & 0xff)
 	if i < 0x1_0000 {
 		return [b, a]
 	}
 
-	c := byte((i >> 16) & 0xff)
-	d := byte((i >> 24) & 0xff)
+	c := u8((i >> 16) & 0xff)
+	d := u8((i >> 24) & 0xff)
 	if i < 0x1_0000_0000 {
 		return [d, c, b, a]
 	}
 
-	e := byte((i >> 32) & 0xff)
-	f := byte((i >> 40) & 0xff)
-	g := byte((i >> 48) & 0xff)
-	h := byte((i >> 56) & 0xff)
+	e := u8((i >> 32) & 0xff)
+	f := u8((i >> 40) & 0xff)
+	g := u8((i >> 48) & 0xff)
+	h := u8((i >> 56) & 0xff)
 	return [h, g, f, e, d, c, b, a]
 }
 

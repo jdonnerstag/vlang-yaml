@@ -54,16 +54,16 @@ fn test_parse_number_fix_length() ? {
 }
 
 fn test_int_to_bytes() ? {
-	assert int_to_bytes(0) == [byte(0)]
-	assert int_to_bytes(1) == [byte(1)]
-	assert int_to_bytes(0xff) == [byte(0xff)]
-	assert int_to_bytes(0x100) == [byte(0x1), 0]
-	assert int_to_bytes(0x1000) == [byte(0x10), 0]
-	assert int_to_bytes(0x1_0000) == [byte(0), 1, 0, 0]
-	assert int_to_bytes(0x1000_0000) == [byte(0x10), 0, 0, 0]
-	assert int_to_bytes(0x1_0000_0000) == [byte(0), 0, 0, 1, 0, 0, 0, 0]
-	assert int_to_bytes(0x1_0000_0000_0000) == [byte(0), 1, 0, 0, 0, 0, 0, 0]
-	assert int_to_bytes(0x1000_0000_0000_0000) == [byte(0x10), 0, 0, 0, 0, 0, 0, 0]
+	assert int_to_bytes(0) == [u8(0)]
+	assert int_to_bytes(1) == [u8(1)]
+	assert int_to_bytes(0xff) == [u8(0xff)]
+	assert int_to_bytes(0x100) == [u8(0x1), 0]
+	assert int_to_bytes(0x1000) == [u8(0x10), 0]
+	assert int_to_bytes(0x1_0000) == [u8(0), 1, 0, 0]
+	assert int_to_bytes(0x1000_0000) == [u8(0x10), 0, 0, 0]
+	assert int_to_bytes(0x1_0000_0000) == [u8(0), 0, 0, 1, 0, 0, 0, 0]
+	assert int_to_bytes(0x1_0000_0000_0000) == [u8(0), 1, 0, 0, 0, 0, 0, 0]
+	assert int_to_bytes(0x1000_0000_0000_0000) == [u8(0x10), 0, 0, 0, 0, 0, 0, 0]
 }
 
 fn test_interpolate_double_quoted_string() ? {
@@ -84,11 +84,11 @@ fn test_interpolate_double_quoted_string() ? {
 	assert interpolate_double_quoted_string(r'\u0040') ? == '@'
 
 	assert '௵' == '\u0BF5'
-	assert '௵'.bytes() == [byte(0xe0), 0xaf, 0xb5]
-	assert '\u0BF5'.bytes() == [byte(0xe0), 0xaf, 0xb5]
+	assert '௵'.bytes() == [u8(0xe0), 0xaf, 0xb5]
+	assert '\u0BF5'.bytes() == [u8(0xe0), 0xaf, 0xb5]
 	assert utf8.get_uchar('௵', 0) == 0x0bf5
 	assert utf8_char_len('௵'[0]) == 3
-	assert utf32_to_str(0x0BF5).bytes() == [byte(0xe0), 0xaf, 0xb5]
+	assert utf32_to_str(0x0BF5).bytes() == [u8(0xe0), 0xaf, 0xb5]
 	assert interpolate_double_quoted_string(r'\u0BF5') ? == '௵'
 
 	assert interpolate_double_quoted_string(r"This is a ''comment''") ? == "This is a ''comment''"
@@ -112,11 +112,11 @@ fn test_interpolate_single_quoted_string() ? {
 	assert interpolate_single_quoted_string(r'\u0040') == '\\u0040'
 
 	assert '௵' == '\u0BF5'
-	assert '௵'.bytes() == [byte(0xe0), 0xaf, 0xb5]
-	assert '\u0BF5'.bytes() == [byte(0xe0), 0xaf, 0xb5]
+	assert '௵'.bytes() == [u8(0xe0), 0xaf, 0xb5]
+	assert '\u0BF5'.bytes() == [u8(0xe0), 0xaf, 0xb5]
 	assert utf8.get_uchar('௵', 0) == 0x0bf5
 	assert utf8_char_len('௵'[0]) == 3
-	assert utf32_to_str(0x0BF5).bytes() == [byte(0xe0), 0xaf, 0xb5]
+	assert utf32_to_str(0x0BF5).bytes() == [u8(0xe0), 0xaf, 0xb5]
 	assert interpolate_single_quoted_string(r'\u0BF5') == '\\u0BF5'
 
 	// This is the only thing happening

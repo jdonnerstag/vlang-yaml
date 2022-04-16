@@ -62,12 +62,12 @@ pub fn (s TextScanner) is_eof() bool {
 
 // at I wish V had more conventions, e.g. ar[idx] => ar.at(idx)
 [inline]
-pub fn (s TextScanner) at(pos int) byte {
+pub fn (s TextScanner) at(pos int) u8 {
 	return s.text[pos]
 }
 
 [inline]
-pub fn (s TextScanner) at_pos() byte {
+pub fn (s TextScanner) at_pos() u8 {
 	return s.text[s.pos]
 }
 
@@ -77,7 +77,7 @@ pub fn (mut s TextScanner) set_pos(pos int) {
 }
 
 [inline]
-pub fn is_newline(c byte) bool {
+pub fn is_newline(c u8) bool {
 	return c in [`\n`, `\r`]
 }
 
@@ -190,7 +190,7 @@ pub fn (s TextScanner) is_followed_by_space_or_eol() bool {
 }
 
 // is_followed_by Return true, if the current char is followed by char.
-pub fn (s TextScanner) is_followed_by(c byte) bool {
+pub fn (s TextScanner) is_followed_by(c u8) bool {
 	pos := s.pos + 1
 	if pos >= s.text.len {
 		return false
@@ -247,7 +247,7 @@ pub fn str_escaped(x string) string {
 
 // replace_nl_space Replace re"[\s\r\n]+" with " "
 pub fn replace_nl_space(str string) string {
-	mut rtn := []byte{cap: str.len + 1}
+	mut rtn := []u8{cap: str.len + 1}
 	mut count := 0
 	for c in str {
 		if c in [` `, `\n`, `\r`] {
@@ -264,7 +264,7 @@ pub fn replace_nl_space(str string) string {
 }
 
 // quoted_string_scanner Scan strings quoted with either `"` or `'`
-pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch byte, str string) bool) ?string {
+pub fn (mut s TextScanner) quoted_string_scanner(op fn (start_ch u8, str string) bool) ?string {
 	start_ch := s.text[s.pos]
 	line_no := s.line_no
 

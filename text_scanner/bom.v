@@ -9,23 +9,23 @@ pub enum Encodings {
 }
 
 pub fn detect_bom(str string) ?Encodings {
-	if str.starts_with([byte(0x00), 0x00, 0xfe, 0xff].bytestr()) {
+	if str.starts_with([u8(0x00), 0x00, 0xfe, 0xff].bytestr()) {
 		return .utf_32be
-	} else if str.starts_with([byte(0x00), 0x00, 0x00].bytestr()) {
+	} else if str.starts_with([u8(0x00), 0x00, 0x00].bytestr()) {
 		return .utf_32be
-	} else if str.starts_with([byte(0xff), 0xfe, 0x00, 0x00].bytestr()) {
+	} else if str.starts_with([u8(0xff), 0xfe, 0x00, 0x00].bytestr()) {
 		return .utf_32le
-	} else if str[1..].starts_with([byte(0x00), 0x00, 0x00].bytestr()) {
+	} else if str[1..].starts_with([u8(0x00), 0x00, 0x00].bytestr()) {
 		return .utf_32le
-	} else if str.starts_with([byte(0xfe), 0xff].bytestr()) {
+	} else if str.starts_with([u8(0xfe), 0xff].bytestr()) {
 		return .utf_16be
-	} else if str.starts_with([byte(0x00)].bytestr()) {
+	} else if str.starts_with([u8(0x00)].bytestr()) {
 		return .utf_16be
-	} else if str.starts_with([byte(0xff), 0xfe].bytestr()) {
+	} else if str.starts_with([u8(0xff), 0xfe].bytestr()) {
 		return .utf_16le
-	} else if str[1..].starts_with([byte(0x00)].bytestr()) {
+	} else if str[1..].starts_with([u8(0x00)].bytestr()) {
 		return .utf_16le
-	} else if str.starts_with([byte(0xef), 0xbb, 0xbf].bytestr()) {
+	} else if str.starts_with([u8(0xef), 0xbb, 0xbf].bytestr()) {
 		return .utf_8
 	} else {
 		return none

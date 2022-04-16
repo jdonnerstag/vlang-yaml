@@ -106,7 +106,7 @@ fn (scanner Scanner) token_followed_by(i int, typ TokenKind) bool {
 
 // is_quoted Test whether 'str' starts and beginns with the quote char provided
 [inline]
-fn is_quoted(str string, ch byte) bool {
+fn is_quoted(str string, ch u8) bool {
 	return str.len > 1 && str[0] == ch && str[str.len - 1] == ch
 }
 
