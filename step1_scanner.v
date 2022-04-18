@@ -11,7 +11,7 @@ pub mut:
 	indent_level      []int = [1] // A stack of relevant indent levels
 	debug             int     // The larger, the more debug messages. 4 and 9 are reasonable values.
 	token_buffer      []Token
-	block_levels      []byte // Open block levels '{' or '['
+	block_levels      []u8 // Open block levels '{' or '['
 }
 
 pub enum TokenKind {
@@ -119,7 +119,7 @@ fn (mut s Scanner) newline() {
 	s.beginning_of_line = true
 }
 
-fn (mut s Scanner) to_token_kind(c byte) TokenKind {
+fn (mut s Scanner) to_token_kind(c u8) TokenKind {
 	return match c {
 		`{` { TokenKind.lcbr }
 		`}` { TokenKind.rcbr }
@@ -337,7 +337,7 @@ fn (mut s Scanner) next_token() ?Token {
 	return tok
 }
 
-fn (mut s Scanner) open_block(c byte) ?Token {
+fn (mut s Scanner) open_block(c u8) ?Token {
 	mut typ := s.to_token_kind(c)
 	tok := s.tokenize(typ, s.ts.pos, s.ts.pos + 1) ?
 
@@ -397,7 +397,7 @@ fn (mut s Scanner) block_scanner() ?Token {
 
 // quoted_string_scanner Scan strings quoted with either `"` or `'`
 fn (mut s Scanner) quoted_string_scanner() ?Token {
-	yaml_quoted_escapes := fn (start_ch byte, str string) bool {
+	yaml_quoted_escapes := fn (start_ch u8, str string) bool {
 		return start_ch == `'` && str.starts_with("''")
 	}
 

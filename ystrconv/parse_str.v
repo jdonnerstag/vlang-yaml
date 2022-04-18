@@ -25,7 +25,7 @@ fn p_is_int_(str string, i int) int {
 	return pos
 }
 
-fn optional_char(str string, pos int, ch byte) int {
+fn optional_char(str string, pos int, ch u8) int {
 	if str.len > 0 && str[pos] == ch {
 		return pos + 1
 	}
