@@ -63,7 +63,7 @@ time_inv: 25:30
 	assert x.get('double_quote') ?.string() ? == 'yes "that" is that that that'
 	assert x.get('double_quote_inline') ?.string() ? == '{"yey":true}'
 	assert x.get('90') ?.string() ? == 'a'
-	assert x.get('f') ?.type_name() == '.Null'
+	assert x.get('f') ?.type_name() == 'yaml.Null'
 	assert x.get('f') ? == YamlValue(null)
 	// assert x.get('d')?.type_name() == "string"
 	assert (x.get('ee') ? as YamlListValue).ar == [YamlValue(true), false]
